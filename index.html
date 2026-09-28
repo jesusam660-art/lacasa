@@ -147,6 +147,27 @@ details.m>summary:hover,details.m[open]>summary{background:var(--panel-2)}
 .opt b{font-family:var(--display);font-size:15px;font-weight:700;letter-spacing:.02em}
 .opt.best b{color:var(--v-hi)}
 .opt small{font-size:11px;color:var(--muted)}
+/* alineación probable */
+.lu{display:flex;flex-direction:column;gap:10px}
+.lu-head{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.lu-head b{color:var(--ink);font-family:var(--display);letter-spacing:.06em}
+.lu-head .h b{color:var(--v-hi)}
+.pitch{position:relative;width:100%;max-width:440px;margin:0 auto;aspect-ratio:68/105;background:repeating-linear-gradient(180deg,#15112A 0 10%,#120F24 10% 20%);border:1px solid var(--line);overflow:hidden}
+.pitch svg{position:absolute;inset:0;width:100%;height:100%}
+.pl{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;padding:2px;cursor:pointer;color:var(--ink);font:inherit;width:22%;max-width:90px}
+.pl i{font-style:normal;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;font-family:var(--display);font-weight:800;font-size:12px;background:linear-gradient(135deg,var(--v-deep),var(--v));border:2px solid var(--v-hi);box-shadow:0 0 10px var(--v-glow)}
+.pl.aw i{background:#1E1A2E;border-color:#CFC8E8;color:#fff;box-shadow:none}
+.pl span{font-size:10.5px;line-height:1.1;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:rgba(10,8,18,.72);padding:1px 4px}
+.pl[aria-pressed="true"] i{outline:2px solid #fff;outline-offset:2px}
+.pl:focus-visible{outline:2px solid var(--v-hi)}
+.lu-card{background:var(--panel);border:1px solid var(--line);padding:12px 14px;font-size:13.5px;color:var(--ink-2);max-width:440px;margin:0 auto;width:100%;box-sizing:border-box}
+.lu-card h5{margin:0 0 8px;font-family:var(--display);font-size:13px;letter-spacing:.04em;color:var(--ink)}
+.lu-card h5 small{color:var(--muted);font-weight:400;letter-spacing:0}
+.lu-st{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.lu-st div{background:var(--panel-2);padding:6px 8px;display:flex;flex-direction:column;gap:1px}
+.lu-st span{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lu-st b{font-variant-numeric:tabular-nums;color:var(--ink);font-size:14px}
+.lu-card p{margin:8px 0 0;font-size:13px}
 .why{background:var(--loss-soft);border-left:3px solid var(--loss);padding:10px 12px;font-size:14px;color:var(--ink-2)}
 .why b{color:var(--loss);font-weight:700}
 .sub{font-size:12.5px;color:var(--muted)}
@@ -612,9 +633,55 @@ function spTile(sp,team){
   if(!sp) return `<div class="tile"><span>Abridor ${esc(team)}</span><b>Sin anunciar</b><small>Se usa el pitcheo del equipo</small></div>`;
   return `<div class="tile"><span>Abridor ${esc(team)}</span><b>${esc(sp.name)}</b><small>${sp.hand==='I'?'Zurdo':'Derecho'} · ERA ${sp.era.toFixed(2)} · FIP ${sp.fip.toFixed(2)} · ${sp.ip} IP${sp.ip<40?' · muestra pequeña':''}</small></div>`;
 }
+/* ---------- alineación probable ---------- */
+const LU={};
+const LU_LBL=[['pj','Partidos'],['min','Minutos'],['g','Goles'],['a','Asist.'],['xg90','xG/90'],['xa90','xA/90'],['kp90','Pases clave/90'],['pases','Pases %'],['forma','Forma']];
+function luRows(n,f){ // filas de la formación: portero + líneas
+  const lines=(f||'').split('-').map(Number).filter(v=>v>0);
+  if(lines.reduce((a,b)=>a+b,0)!==10) return null;
+  return [1,...lines];
+}
+function luPos(side,rows){
+  const out=[], L=rows.length;
+  rows.forEach((n,r)=>{
+    const y=r===0?94:83-(r-1)*(25/Math.max(1,L-2));
+    for(let i=0;i<n;i++){let x=(i+1)/(n+1)*100; if(side==='away') x=100-x; out.push([x, side==='home'?y:100-y]);}
+  });
+  return out;
+}
+function lineup(x){
+  const L=x.g.lineups; if(!L||!L.home||!L.away) return '';
+  LU[x.id]=L;
+  let dots='';
+  for(const sd of ['home','away']){
+    const t=L[sd], rows=luRows(11,t.formation)||[1,4,4,2], pos=luPos(sd,rows);
+    t.players.slice(0,11).forEach((p,i)=>{const [px,py]=pos[i]||[50,50]; const nm=(p.name||'').split(' ').slice(-1)[0];
+      dots+=`<button type="button" class="pl ${sd==='away'?'aw':''}" style="left:${px.toFixed(1)}%;top:${py.toFixed(1)}%" data-g="${esc(x.id)}" data-s="${sd}" data-i="${i}" aria-pressed="false" aria-label="${esc(p.name)}, ${p.num??''}"><i>${p.num??''}</i><span>${esc(nm)}</span></button>`;});
+  }
+  const tag=L.home.confirmed&&L.away.confirmed?'Alineación confirmada':'Alineación probable';
+  return `<div class="blk lu"><h4>${tag}</h4>
+    <div class="lu-head"><span class="h">${esc(x.home.name)} <b>${esc(L.home.formation)}</b> · abajo</span><span>${esc(x.away.name)} <b>${esc(L.away.formation)}</b> · arriba</span></div>
+    <div class="pitch"><svg viewBox="0 0 68 105" preserveAspectRatio="none" aria-hidden="true" fill="none" stroke="rgba(207,200,232,.28)" stroke-width=".4">
+      <rect x="1" y="1" width="66" height="103"/><line x1="1" y1="52.5" x2="67" y2="52.5"/><circle cx="34" cy="52.5" r="9.15"/>
+      <rect x="13.84" y="1" width="40.32" height="16.5"/><rect x="24.84" y="1" width="18.32" height="5.5"/>
+      <rect x="13.84" y="87.5" width="40.32" height="16.5"/><rect x="24.84" y="98.5" width="18.32" height="5.5"/></svg>${dots}</div>
+    <div class="lu-card" id="luc-${esc(x.id)}">Toca un jugador para ver sus estadísticas.</div></div>`;
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('.pl'); if(!b) return;
+  const L=LU[b.dataset.g]; if(!L) return;
+  const t=L[b.dataset.s], p=t.players[+b.dataset.i], x=BYID[b.dataset.g];
+  b.closest('.pitch').querySelectorAll('.pl').forEach(o=>o.setAttribute('aria-pressed',String(o===b)));
+  const team=x?x[b.dataset.s].name:'';
+  const st=p.stats||{}, has=Object.keys(st).length;
+  let inner;
+  if(!has) inner=x&&x.g.locked?`<p>${LOCK} Las estadísticas de cada jugador son para suscriptores.</p>`:'<p>Sin estadísticas disponibles.</p>';
+  else inner=`<div class="lu-st">${LU_LBL.filter(([k])=>st[k]!=null&&st[k]!=='').map(([k,l])=>`<div><span>${l}</span><b>${esc(String(st[k]))}</b></div>`).join('')}</div>${st.nota?`<p>${esc(st.nota)}</p>`:''}`;
+  document.getElementById('luc-'+b.dataset.g).innerHTML=`<h5>${p.num!=null?p.num+' · ':''}${esc(p.name)} <small>· ${esc(p.pos||'')} · ${esc(team)}</small></h5>${inner}`;
+});
 function detail(x){
   const g=x.g, r=RES[x.id]; let tiles='';
-  if(g.locked) return `<div class="det">${r&&r.review&&r.result===0?`<div class="why"><b>Por qué falló:</b> ${esc(r.review)}</div>`:''}${paywall()}</div>`;
+  if(g.locked) return `<div class="det">${r&&r.review&&r.result===0?`<div class="why"><b>Por qué falló:</b> ${esc(r.review)}</div>`:''}${x.sport==='futbol'?lineup(x):''}${paywall()}</div>`;
   if(x.sport==='futbol'){
     const adj=v=>v?` (${v>0?'+':''}${v})`:'';
     tiles=`<div class="tile"><span>Goles esperados</span><b class="num">${g.xg_home.toFixed(2)} – ${g.xg_away.toFixed(2)}</b></div><div class="tile"><span>Elo ${esc(g.home)}</span><b class="num">${g.elo_home}${adj(g.adj_home)}</b></div><div class="tile"><span>Elo ${esc(g.away)}</span><b class="num">${g.elo_away}${adj(g.adj_away)}</b></div>`;
@@ -628,6 +695,7 @@ function detail(x){
     ${r&&r.review&&r.result===0?`<div class="why"><b>Por qué falló:</b> ${esc(r.review)}</div>`:''}
     ${probBar(x)}
     <div class="tiles">${tiles}</div>
+    ${x.sport==='futbol'?lineup(x):''}
     ${blk('Noticias',notes(g.news,'team','effect'))}
     ${blk('Fuera de los números',notes(g.analysis,'factor','impact'))}
     ${blk('Mercados',markets(g.markets,x.sport==='mlb'))}
