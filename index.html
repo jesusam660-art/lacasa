@@ -709,6 +709,8 @@ function buildSport(s){
 const CT=[{k:'segura',title:'Segura 1',desc:s=>s==='mlb'?'Los 3 ganadores más probables del día (56% o más cada uno).':'Las 3 selecciones más probables del día (62% o más, hasta 80%).'},
           {k:'segura2',title:'Segura 2',desc:s=>s==='mlb'?'Los 3 siguientes ganadores más probables, con equipos distintos.':'Las 3 siguientes selecciones más probables, con equipos distintos.'}];
 const TLBL={segura:'Segura 1',segura2:'Segura 2'};
+// con menos de 55% de probabilidad la combinada se llama "Arriesgada"
+function cname(k,p){const n=k==='segura2'?'2':'1'; return (p!=null&&p<0.55?'Arriesgada ':'Segura ')+n;}
 function resCls(r){return r===1?'ok':r===0?'no':r==='void'?'void':'pend';}
 function resTxt(r){return r===1?'Acertó':r===0?'Falló':r==='void'?'Anulada':'Pendiente';}
 function histCombo(sport,type,date){return CH.find(c=>c.sport===sport&&c.type===type&&c.date===date);}
@@ -723,15 +725,15 @@ function legLi(l,sport,hl){
 }
 function comboCard(sport,ct,c,hc){
   const res=hc?hc.result:null, D=1/c.p;
-  if(c.locked) return `<article class="combo cut enter"><div class="ch"><div><h3>${ct.title}</h3><p>${ct.desc(sport)}</p></div><span class="badge ${resCls(res)}">${res==null?'Premium':resTxt(res)}</span></div>
+  if(c.locked) return `<article class="combo cut enter"><div class="ch"><div><h3>${cname(ct.k,c.p)}</h3><p>${ct.desc(sport)}${c.p<0.55?' Hoy no llega al 55%: tómala como arriesgada.':''}</p></div><span class="badge ${resCls(res)}">${res==null?'Premium':resTxt(res)}</span></div>
     <ul class="legs">${Array.from({length:c.n||3},()=>`<li class="pend"><span class="jj">${LOCK}</span><div><div class="gm">Selección oculta</div><div class="sel blur">Equipo · Ganador</div></div><div class="lp"><span class="num">··%</span></div></li>`).join('')}</ul>
     <div class="cfoot"><div><span>Chance de ganar</span><b class="num">${pct(c.p)}</b></div><div><span>Cuota mínima</span><b class="num">${esc(c.fair)}</b></div></div>${paywall('Las selecciones de esta combinada.')}</article>`;
-  return `<article class="combo cut enter"><div class="ch"><div><h3>${ct.title}</h3><p>${ct.desc(sport)}</p></div><span class="badge ${resCls(res)}">${resTxt(res)}</span></div><ul class="legs">${c.legs.map((l,i)=>legLi(l,sport,hc&&hc.legs[i])).join('')}</ul>
+  return `<article class="combo cut enter"><div class="ch"><div><h3>${cname(ct.k,c.p)}</h3><p>${ct.desc(sport)}${c.p<0.55?' Hoy no llega al 55%: tómala como arriesgada.':''}</p></div><span class="badge ${resCls(res)}">${resTxt(res)}</span></div><ul class="legs">${c.legs.map((l,i)=>legLi(l,sport,hc&&hc.legs[i])).join('')}</ul>
     <div class="cfoot"><div><span>Chance de ganar</span><b class="num">${pct(c.p)}</b></div><div><span>Cuota mínima</span><b class="num">${esc(c.fair)}</b></div></div>
     <p class="note" style="padding:0 18px 16px">Se gana más o menos 1 de cada ${Math.round(D)} veces. Con 100 apostados, pide que pague al menos ${Math.round(100*D).toLocaleString('es-VE')}.</p></article>`;
 }
 function buildCombos(){
-  let h=`<div class="h-sec"><div><div class="kick">Del día</div><h2>Combinadas</h2></div><p>Dos combinadas seguras por deporte con partidos distintos: un mismo resultado nunca tumba las dos.</p></div>`;
+  let h=`<div class="h-sec"><div><div class="kick">Del día</div><h2>Combinadas</h2></div><p>Dos combinadas por deporte con partidos distintos. Se llama <b>Segura</b> si tiene 55% o más de chance y <b>Arriesgada</b> si tiene menos.</p></div>`;
   SPORTS.forEach(s=>{
     const cs=(DATA.combos||{})[s.k]||{}, games=(DATA[s.k]||[]).length;
     let body;
@@ -759,7 +761,7 @@ function buildSide(){
   let h=`<div class="card cut"><h3>Rendimiento</h3><div class="gauge">${gauge(real,exp)}<div><div class="gv num">${real==null?'—':pct0(real)}</div><div class="gl">pronósticos acertados (${hits}/${done.length})</div><div class="gl">La marca blanca es lo que esperaba el modelo: ${exp==null?'—':pct0(exp)}</div></div></div>
     <div class="mini"><div class="row"><span>Combinadas acertadas</span><b class="num">${cDone.filter(c=>c.result===1).length}/${cDone.length}</b></div></div></div>`;
   const today=[]; SPORTS.forEach(s=>CT.forEach(ct=>{const c=((DATA.combos||{})[s.k]||{})[ct.k]; if(c) today.push({s,ct,c,hc:histCombo(s.k,ct.k,DATA.date)});}));
-  if(today.length) h+=`<div class="card cut"><h3>Seguras de hoy</h3><div class="mini">${today.map(t=>`<div class="row"><span>${t.s.name} · ${t.ct.title} <span class="num" style="color:var(--muted)">${pct(t.c.p)}</span></span><b class="${resCls(t.hc?t.hc.result:null)}">${resTxt(t.hc?t.hc.result:null).toUpperCase()}</b></div>`).join('')}</div></div>`;
+  if(today.length) h+=`<div class="card cut"><h3>Combinadas de hoy</h3><div class="mini">${today.map(t=>`<div class="row"><span>${t.s.name} · ${cname(t.ct.k,t.c.p)} <span class="num" style="color:var(--muted)">${pct(t.c.p)}</span></span><b class="${resCls(t.hc?t.hc.result:null)}">${resTxt(t.hc?t.hc.result:null).toUpperCase()}</b></div>`).join('')}</div></div>`;
   h+=`<div class="brandcard cut"><svg viewBox="0 0 506 536" aria-hidden="true"><path d="M0 218L218 0L506 288V536H335V126L173 288V536H0Z" fill="#856CFF"/></svg><p>Pronósticos hechos solo con estadísticas, noticias y contexto. Nunca con cuotas de casas de apuestas.</p></div>`;
   $('side').innerHTML=h;
 }
@@ -780,7 +782,7 @@ function buildHist(){
   h+=dates.map(d=>{
     const cs=CH.filter(c=>c.date===d), rows=H.filter(e=>e.date===d);
     const combos=cs.length?`<div class="combos">${cs.map(c=>{const sp=SPORTS.find(s=>s.k===c.sport);
-      return `<article class="combo cut"><div class="ch"><div><h3 style="font-size:15px">${sp?sp.name:c.sport} · ${TLBL[c.type]||c.type}</h3><p class="num">Chance ${pct(c.p)} · cuota mín. ${esc(c.fair)}</p></div><span class="badge ${resCls(c.result)}">${resTxt(c.result)}</span></div><ul class="legs">${c.legs.length?c.legs.map(l=>legLi(l,c.sport,l)).join(''):`<li class="pend"><span class="jj">${LOCK}</span><div><div class="gm">Selecciones visibles para suscriptores hasta que terminen los partidos</div></div><div class="lp"></div></li>`}</ul><div style="height:8px"></div></article>`;}).join('')}</div>`:'';
+      return `<article class="combo cut"><div class="ch"><div><h3 style="font-size:15px">${sp?sp.name:c.sport} · ${cname(c.type,c.p)}</h3><p class="num">Chance ${pct(c.p)} · cuota mín. ${esc(c.fair)}</p></div><span class="badge ${resCls(c.result)}">${resTxt(c.result)}</span></div><ul class="legs">${c.legs.length?c.legs.map(l=>legLi(l,c.sport,l)).join(''):`<li class="pend"><span class="jj">${LOCK}</span><div><div class="gm">Selecciones visibles para suscriptores hasta que terminen los partidos</div></div><div class="lp"></div></li>`}</ul><div style="height:8px"></div></article>`;}).join('')}</div>`:'';
     const list=rows.length?`<div class="hrows cut">${rows.map(e=>{const sp=SPORTS.find(s=>s.k===e.sport);
       return `<div class="hrow"><span class="res ${resCls(e.result)}">${resTxt(e.result).toUpperCase()}</span><div class="g">${esc(e.game)}<small>${sp?sp.name:''} · Pronóstico: ${e.locked?LOCK+'solo suscriptores':esc(e.pick)+' ('+pct(e.p)+')'}</small></div><span class="sc num">${e.score?esc(e.score):'—'}</span>${e.review&&e.result===0?`<div class="rv">${esc(e.review)}</div>`:''}</div>`;}).join('')}</div>`:'';
     const graded=rows.filter(e=>e.result===1||e.result===0), cG=cs.filter(c=>c.result===1||c.result===0);
