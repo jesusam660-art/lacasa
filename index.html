@@ -1,3 +1,10 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07060C">
+<meta name="description" content="LA CASA: pronósticos diarios de fútbol, béisbol, NBA y NFL con estadísticas, noticias y dos combinadas seguras por deporte.">
 <title>LA CASA</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-60 -40 626 616'%3E%3Crect x='-60' y='-40' width='626' height='616' rx='90' fill='%2307060C'/%3E%3Cpath d='M0 218L218 0L506 288V536H335V126L173 288V536H0Z' fill='%23856CFF'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -271,6 +278,73 @@ details.renew>summary{cursor:pointer;padding:12px 14px;font-weight:700;font-size
 details.renew[open]>summary{border-bottom:1px solid var(--line)}
 details.renew .steps{padding:12px}
 
+
+/* ---------- teléfonos ---------- */
+@media (max-width:640px){
+  body{font-size:15.5px}
+  .wrap{padding-inline:14px}
+  .brand{padding-block:10px 8px;gap:10px}
+  .logo{gap:10px}
+  .acct-btn{padding:9px 11px;font-size:12px}
+  nav.tabs{margin:0 -14px;padding:0 14px 10px;scroll-snap-type:x proximity}
+  nav.tabs button{padding:10px 13px;font-size:13px;scroll-snap-align:start}
+  .grid{padding-block:16px 48px;gap:16px}
+  .h-sec h2{font-size:19px}
+  .h-sec p{font-size:14px}
+  .filters{width:100%}
+  .filters button{flex:1;min-height:40px;padding:8px 4px;font-size:12.5px;white-space:nowrap}
+  .board-h{padding:11px 12px}
+  .board-h h3{font-size:13px}
+  details.m>summary{grid-template-columns:44px minmax(0,1fr) auto;gap:10px;padding:12px 12px}
+  .stat-col{font-size:11px;padding-right:6px}
+  .stat-col b{font-size:14px}
+  .tm .nm{font-size:15px}
+  .tm .score{font-size:16px}
+  .pick{min-width:0;max-width:112px}
+  .pick b{max-width:112px;font-size:11px;padding:5px 8px}
+  .pick small{font-size:9.5px}
+  .drawline{padding-left:32px}
+  .det{padding:8px 12px 18px;gap:14px}
+  .tiles{grid-template-columns:1fr 1fr}
+  .tile b{font-size:13.5px}
+  .mkts{grid-template-columns:1fr}
+  .opts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .opt b{font-size:16px}
+  .notes li{font-size:14.5px}
+  .combos{grid-template-columns:1fr}
+  .combo .ch{padding:14px 14px 10px}
+  .combo .ch h3{font-size:17px}
+  .legs{padding:0 14px}
+  .legs .sel{font-size:15px}
+  .cfoot div{padding:12px 14px}
+  .cfoot b{font-size:21px}
+  .combo .paywall{margin:0 14px 14px}
+  .paywall{padding:14px}
+  .paywall .btn-v{width:100%}
+  .kpis{grid-template-columns:1fr 1fr}
+  .kpi b{font-size:22px}
+  .hrow{grid-template-columns:minmax(0,1fr) auto;padding:12px 12px}
+  .hrow .res{grid-column:1/-1;justify-self:start;min-width:0}
+  .hrow .rv{grid-column:1/-1}
+  .hrow .g{white-space:normal}
+  .card{padding:14px}
+  .gauge svg{width:80px;height:80px}
+  .gauge .gv{font-size:23px}
+  .how article{padding:16px}
+  .foot-grid{padding-block:32px 24px}
+  .foot-bar{flex-direction:column;align-items:flex-start}
+  dialog.acct{width:100%;max-width:100%;max-height:100%;height:100%;margin:0}
+  .acct-in{min-height:100%;max-height:100vh;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));clip-path:none}
+  .payid code{font-size:22px}
+  .row2 .btn-g{min-height:44px}
+  .btn-v{min-height:46px}
+}
+@media (max-width:380px){
+  .wordmark{font-size:19px;letter-spacing:.1em}
+  .pick{max-width:96px}.pick b{max-width:96px}
+  .tiles{grid-template-columns:1fr}
+}
+
 /* ---------- pie de página ---------- */
 .foot{border-top:1px solid var(--line);background:linear-gradient(180deg,rgba(17,14,28,.6),#050409);position:relative}
 .foot::before{content:"";position:absolute;inset:-1px 0 auto 0;height:1px;background:linear-gradient(90deg,transparent,var(--v),transparent)}
@@ -308,6 +382,8 @@ details.renew .steps{padding:12px}
 }
 </style>
 
+</head>
+<body>
 <div class="ticker" aria-label="Partidos del día"><div class="wrap" id="ticker"></div></div>
 <header class="top">
   <div class="wrap">
@@ -801,3 +877,5 @@ if(PUBLIC){
   document.head.appendChild(s);
 }
 </script>
+</body>
+</html>
