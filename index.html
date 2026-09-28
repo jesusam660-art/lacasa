@@ -948,7 +948,14 @@ if(PUBLIC){
   async function loadPremium(){
     if(!active()){ PREM=false; if(DATA!==PUB_DATA){setData(PUB_DATA);renderAll();} paintBtn(); return; }
     const {data}=await sb.from('premium').select('data').eq('id','hoy').maybeSingle();
-    if(data&&data.data){ const d=data.data; d.public=false; PREM=true; setData(d); renderAll(); } else PREM=false;
+    if(data&&data.data){ const d=data.data; d.public=false; PREM=true;
+      // si la versión premium no trae alineaciones, se usan las de la versión pública
+      const pl={}; (PUB_DATA.futbol||[]).forEach(g=>{if(g.lineups) pl[g.id]=g.lineups;});
+      (d.futbol||[]).forEach(g=>{if(!g.lineups&&pl[g.id]) g.lineups=pl[g.id];});
+      const open=[...document.querySelectorAll('details.m[open]')].map(x=>x.id);
+      setData(d); renderAll();
+      open.forEach(id=>{const x=document.getElementById(id); if(x) x.open=true;});
+    } else PREM=false;
     paintBtn();
   }
   async function onSession(session){
