@@ -1,0 +1,794 @@
+<title>LA CASA</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-60 -40 626 616'%3E%3Crect x='-60' y='-40' width='626' height='616' rx='90' fill='%2307060C'/%3E%3Cpath d='M0 218L218 0L506 288V536H335V126L173 288V536H0Z' fill='%23856CFF'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Chakra+Petch:wght@400;500;600;700&display=swap">
+<style>
+/* LA CASA · diseño oscuro único (negro + morado del logo) */
+:root{
+  color-scheme:dark;
+  --bg:#07060C; --panel:#110E1C; --panel-2:#171327; --panel-3:#211B37; --line:#2A2344;
+  --ink:#F2EFFF; --ink-2:#C9C2EA; --muted:#8E86B3; --dim:#5D5680;
+  --v:#856CFF; --v-hi:#A895FF; --v-deep:#4B34D6; --v-soft:rgba(133,108,255,.14); --v-glow:rgba(133,108,255,.45);
+  --win:#3BE8A8; --win-soft:rgba(59,232,168,.13); --loss:#FF5C7F; --loss-soft:rgba(255,92,127,.13);
+  --display:"Orbitron","Eurostile","Arial Black",system-ui,sans-serif;
+  --ui:"Chakra Petch","Arial Narrow",system-ui,-apple-system,sans-serif;
+  --cut:12px;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.45;
+  background-image:
+    radial-gradient(900px 420px at 78% -120px,rgba(133,108,255,.20),transparent 70%),
+    radial-gradient(600px 300px at -10% 20%,rgba(75,52,214,.12),transparent 70%),
+    linear-gradient(rgba(133,108,255,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(133,108,255,.045) 1px,transparent 1px);
+  background-size:auto,auto,44px 44px,44px 44px;background-attachment:fixed}
+a{color:inherit}
+button{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+h1,h2,h3{margin:0;text-wrap:balance}
+button:focus-visible,summary:focus-visible{outline:2px solid var(--v-hi);outline-offset:2px}
+.cut{clip-path:polygon(0 0,calc(100% - var(--cut)) 0,100% var(--cut),100% 100%,var(--cut) 100%,0 calc(100% - var(--cut)))}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:16px}
+
+/* ---------- barra de partidos (arriba) ---------- */
+.ticker{background:#000;border-bottom:1px solid var(--line)}
+.ticker .wrap{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-block:8px}
+.ticker .wrap::-webkit-scrollbar{display:none}
+.tk{flex:none;display:flex;align-items:center;gap:8px;background:var(--panel);padding:6px 12px 6px 10px;font-size:13px;white-space:nowrap;border:0;cursor:pointer;--cut:7px}
+.tk:hover{background:var(--panel-2)}
+.tk .sp{font-family:var(--display);font-size:9px;letter-spacing:.14em;color:var(--v-hi)}
+.tk .st{font-weight:700;color:var(--muted);min-width:38px}
+.tk .st.fin{color:var(--ink-2)}
+.tk .sc{font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.04em}
+.tk .vs{color:var(--dim)}
+.tk-day{flex:none;align-self:center;font-family:var(--display);font-size:11px;letter-spacing:.14em;color:var(--muted);padding:0 4px}
+
+/* ---------- cabecera ---------- */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(7,6,12,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:14px 10px}
+.logo{display:flex;align-items:center;gap:14px;text-decoration:none}
+.logo svg{width:40px;height:auto;flex:none;filter:drop-shadow(0 0 14px var(--v-glow))}
+.wordmark{font-family:var(--display);font-weight:900;font-size:30px;letter-spacing:.16em;line-height:1;color:var(--ink)}
+.wordmark b{color:var(--v);font-weight:900}
+.upd{text-align:right;font-size:12px;color:var(--muted);line-height:1.35}
+.upd strong{display:block;color:var(--ink-2);font-weight:600;font-size:13px}
+nav.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:12px}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs button{flex:none;display:flex;align-items:center;gap:8px;border:0;cursor:pointer;background:var(--panel);color:var(--ink-2);
+  font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase;padding:9px 16px;--cut:8px}
+nav.tabs button:hover{background:var(--panel-2);color:var(--ink)}
+nav.tabs button .ct{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+nav.tabs button[aria-selected="true"]{background:var(--v);color:#0B0718}
+nav.tabs button[aria-selected="true"] .ct{color:#2b2064}
+
+/* ---------- estructura ---------- */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;align-items:start;padding-block:22px 64px}
+@media (max-width:980px){.grid{grid-template-columns:minmax(0,1fr)}}
+.side{display:flex;flex-direction:column;gap:16px;position:sticky;top:150px}
+@media (max-width:980px){.side{position:static}}
+section[hidden]{display:none!important}
+.sec{display:flex;flex-direction:column;gap:16px}
+.h-sec{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.h-sec h2{font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:.08em;text-transform:uppercase}
+.h-sec p{margin:0;color:var(--muted);font-size:13.5px;max-width:60ch}
+.kick{font-family:var(--display);font-size:10px;letter-spacing:.24em;color:var(--v-hi);text-transform:uppercase;margin-bottom:4px}
+
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filters button{border:1px solid var(--line);background:transparent;color:var(--ink-2);font-weight:600;font-size:13px;padding:6px 14px;border-radius:999px;cursor:pointer}
+.filters button[aria-pressed="true"]{border-color:var(--v);background:var(--v-soft);color:var(--ink)}
+
+/* ---------- listas de partidos ---------- */
+.board{background:var(--panel)}
+.board[hidden]{display:none}
+.board-h{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--panel-2);border-bottom:1px solid var(--line)}
+.board-h .ic{padding:4px 7px;background:var(--v-soft);color:var(--v-hi);font-family:var(--display);font-size:9px;font-weight:800;letter-spacing:.1em}
+.board-h h3{font-size:14px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.board-h span:last-child{margin-left:auto;font-size:12px;color:var(--muted)}
+details.m{border-bottom:1px solid var(--line)}
+details.m:last-child{border-bottom:0}
+details.m>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 16px;transition:background .15s}
+details.m>summary::-webkit-details-marker{display:none}
+details.m>summary:hover,details.m[open]>summary{background:var(--panel-2)}
+.stat-col{border-right:1px solid var(--line);padding-right:12px;text-align:center;font-size:12px;color:var(--muted);line-height:1.25}
+.stat-col b{display:block;color:var(--ink);font-size:15px;font-weight:700}
+.stat-col .fin{font-family:var(--display);font-size:11px;letter-spacing:.14em;color:var(--ink-2)}
+.stat-col .on{font-family:var(--display);font-size:9px;letter-spacing:.1em;color:var(--v-hi)}
+.stat-col .void{font-family:var(--display);font-size:10px;letter-spacing:.12em;color:var(--loss)}
+.teams{display:flex;flex-direction:column;gap:7px;min-width:0}
+.tm{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center}
+.tm .nm{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-2)}
+.tm.fav .nm{color:var(--ink)}
+.tm .rt{font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted);text-align:right;min-width:40px}
+.tm.fav .rt{color:var(--v-hi);font-weight:700}
+.tm .score{font-family:var(--display);font-weight:800;font-size:17px;color:var(--ink);min-width:28px;text-align:right}
+.tm.lost .score,.tm.lost .nm{color:var(--muted)}
+.drawline{font-size:12px;color:var(--muted);padding-left:32px}
+.pick{display:flex;flex-direction:column;align-items:flex-end;gap:3px;min-width:104px}
+.pick small{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.pick b{font-family:var(--display);font-weight:700;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;background:var(--v-soft);color:var(--ink);border:1px solid rgba(133,108,255,.5);padding:4px 9px;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pick b.ok{background:var(--win-soft);border-color:rgba(59,232,168,.55);color:var(--win)}
+.pick b.no{background:var(--loss-soft);border-color:rgba(255,92,127,.55);color:var(--loss)}
+.pick em{font-style:normal;font-variant-numeric:tabular-nums;font-size:12px;color:var(--muted)}
+
+.det{padding:6px 16px 20px 92px;display:flex;flex-direction:column;gap:16px;background:var(--panel-2)}
+@media (max-width:640px){.det{padding:6px 12px 18px}}
+.pbar{display:flex;flex-direction:column;gap:6px}
+.pbar .bar{display:flex;height:10px;gap:3px}
+.pbar .bar i{display:block;height:100%;background:var(--panel-3)}
+.pbar .bar i.hi{background:linear-gradient(90deg,var(--v-deep),var(--v));box-shadow:0 0 12px var(--v-glow)}
+.pbar .lbl{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.pbar .lbl b{color:var(--ink);font-variant-numeric:tabular-nums}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:8px}
+.tile{background:var(--panel);padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.tile span{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.tile b{font-family:var(--display);font-weight:700;font-size:14px;letter-spacing:.03em}
+.tile small{font-size:12px;color:var(--muted)}
+.blk h4{margin:0 0 8px;font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--v-hi)}
+.notes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.notes li{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;align-items:baseline;font-size:14px;color:var(--ink-2)}
+.notes .tag{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);background:var(--panel-3);padding:2px 8px;white-space:nowrap}
+.notes .eff{grid-column:2;font-size:12px;color:var(--v-hi)}
+.mkts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:10px}
+.mkt{background:var(--panel);padding:10px;--cut:8px}
+.mkt h5{margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px}
+.opt{background:var(--panel-2);padding:8px 9px;display:flex;flex-direction:column;gap:1px;border:1px solid transparent;min-width:0}
+.opt.best{border-color:rgba(133,108,255,.6);background:var(--v-soft)}
+.opt span{font-size:12.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.opt b{font-family:var(--display);font-size:15px;font-weight:700;letter-spacing:.02em}
+.opt.best b{color:var(--v-hi)}
+.opt small{font-size:11px;color:var(--muted)}
+.why{background:var(--loss-soft);border-left:3px solid var(--loss);padding:10px 12px;font-size:14px;color:var(--ink-2)}
+.why b{color:var(--loss);font-weight:700}
+.sub{font-size:12.5px;color:var(--muted)}
+.sub b{color:var(--ink-2)}
+
+/* ---------- combinadas ---------- */
+.combos{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px;align-items:start}
+.combo{background:linear-gradient(160deg,var(--panel-2),var(--panel) 60%);position:relative;display:flex;flex-direction:column}
+.combo::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:linear-gradient(90deg,var(--v),transparent)}
+.combo .ch{padding:16px 18px 12px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.combo .ch h3{font-family:var(--display);font-weight:800;font-size:19px;letter-spacing:.1em;text-transform:uppercase}
+.combo .ch p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.badge{flex:none;font-family:var(--display);font-size:10px;font-weight:700;letter-spacing:.16em;padding:5px 9px;text-transform:uppercase;background:var(--panel-3);color:var(--muted)}
+.badge.ok{background:var(--win-soft);color:var(--win)} .badge.no{background:var(--loss-soft);color:var(--loss)}
+.legs{list-style:none;margin:0;padding:0 18px;display:flex;flex-direction:column}
+.legs li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:11px 0;border-top:1px solid var(--line)}
+.legs .jj{display:flex;gap:2px}
+.legs .gm{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.legs .sel{font-weight:700;font-size:15px}
+.legs .sel small{font-weight:500;color:var(--muted);font-size:12px;margin-left:6px}
+.legs .lp{text-align:right;font-variant-numeric:tabular-nums;font-size:14px}
+.legs .lp i{display:block;font-style:normal;font-size:10px;font-weight:700;letter-spacing:.12em}
+.legs li.ok .lp i{color:var(--win)} .legs li.no .lp i{color:var(--loss)} .legs li.pend .lp i,.legs li.void .lp i{color:var(--muted)}
+.legs li.no .sel{color:var(--loss)}
+.cfoot{display:grid;grid-template-columns:1fr 1fr;margin-top:auto;border-top:1px solid var(--line)}
+.cfoot div{padding:12px 18px;display:flex;flex-direction:column;gap:2px}
+.cfoot div+div{border-left:1px solid var(--line)}
+.cfoot span{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.cfoot b{font-family:var(--display);font-weight:800;font-size:23px;color:var(--v-hi);text-shadow:0 0 18px var(--v-glow)}
+.combo .empty{padding:0 18px 18px;font-size:13.5px;color:var(--muted);margin:0}
+.sporthd{display:flex;align-items:baseline;gap:10px}
+.sporthd h3{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.14em;text-transform:uppercase}
+.sporthd span{color:var(--muted);font-size:13px}
+.note{margin:0;color:var(--muted);font-size:13.5px}
+.info{margin:0;background:var(--panel);padding:14px 16px;font-size:14px;color:var(--ink-2);border-left:3px solid var(--v)}
+.info b{color:var(--ink)}
+
+/* ---------- panel lateral ---------- */
+.card{background:var(--panel);padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.card h3{font-family:var(--display);font-weight:800;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--v-hi)}
+.gauge{display:flex;align-items:center;gap:16px}
+.gauge svg{width:92px;height:92px;flex:none}
+.gauge .gv{font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:.02em}
+.gauge .gl{font-size:13px;color:var(--muted)}
+.mini{display:flex;flex-direction:column;gap:6px}
+.mini .row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px;padding:8px 10px;background:var(--panel-2)}
+.mini .row span{color:var(--ink-2)}
+.mini .row b{font-family:var(--display);font-size:11px;letter-spacing:.1em}
+.mini .row b.ok{color:var(--win)} .mini .row b.no{color:var(--loss)} .mini .row b.pend{color:var(--muted)}
+.brandcard{background:linear-gradient(150deg,#1a1234,#0d0a18 70%);padding:18px;display:flex;gap:14px;align-items:center}
+.brandcard svg{width:34px;flex:none}
+.brandcard p{margin:0;font-size:13px;color:var(--ink-2)}
+
+/* ---------- historial ---------- */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:10px}
+.kpi{background:var(--panel);padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.kpi span{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.kpi b{font-family:var(--display);font-weight:800;font-size:26px;color:var(--ink)}
+.kpi small{font-size:12px;color:var(--muted)}
+.day{display:flex;flex-direction:column;gap:12px}
+.day-h{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.day-h h3{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.16em}
+.hrows{background:var(--panel)}
+.hrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 14px;align-items:center;padding:11px 16px;border-top:1px solid var(--line)}
+.hrow:first-child{border-top:0}
+.hrow .res{font-family:var(--display);font-size:9.5px;font-weight:700;letter-spacing:.12em;padding:5px 6px;min-width:82px;text-align:center;background:var(--panel-3);color:var(--muted)}
+.hrow .res.ok{background:var(--win-soft);color:var(--win)} .hrow .res.no{background:var(--loss-soft);color:var(--loss)}
+.hrow .g{font-weight:600;min-width:0}
+.hrow .g small{display:block;font-weight:400;font-size:12.5px;color:var(--muted)}
+.hrow .sc{font-family:var(--display);font-weight:700;font-size:15px;text-align:right}
+.hrow .rv{grid-column:2/-1;font-size:13px;color:var(--ink-2);border-left:2px solid var(--loss);padding-left:10px}
+
+/* ---------- cómo funciona ---------- */
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}
+.how article{background:var(--panel);padding:18px}
+.how h3{font-family:var(--display);font-weight:800;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--v-hi);margin-bottom:10px}
+.how p,.how li{margin:0 0 8px;color:var(--ink-2);max-width:65ch}
+.how ul{margin:0;padding-left:18px}
+.how b{color:var(--ink)}
+
+
+/* ---------- suscripción ---------- */
+.brand-r{display:flex;align-items:center;gap:14px}
+.acct-btn{display:flex;align-items:center;gap:8px;border:1px solid rgba(133,108,255,.55);background:var(--v-soft);color:var(--ink);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:9px 14px;cursor:pointer;--cut:8px;white-space:nowrap}
+.acct-btn:hover{background:rgba(133,108,255,.24)}
+.acct-btn .pro{font-family:var(--display);font-size:9.5px;letter-spacing:.14em;background:var(--v);color:#0B0718;padding:2px 6px}
+.btn-v{border:0;background:var(--v);color:#0B0718;font-weight:700;font-size:14px;letter-spacing:.05em;text-transform:uppercase;padding:11px 18px;cursor:pointer;--cut:8px}
+.btn-v:hover{background:var(--v-hi)}
+.btn-v:disabled{opacity:.55;cursor:wait}
+.btn-g{border:1px solid var(--line);background:transparent;color:var(--ink-2);font-weight:600;font-size:13px;padding:9px 14px;cursor:pointer}
+.btn-g:hover{border-color:var(--v);color:var(--ink)}
+.paywall{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:linear-gradient(120deg,rgba(133,108,255,.18),rgba(133,108,255,.05));border:1px solid rgba(133,108,255,.35);padding:14px 16px}
+.combo .paywall{margin:0 18px 18px}
+.paywall b{color:var(--ink)}
+.paywall p{margin:4px 0 0;font-size:13.5px;color:var(--ink-2);max-width:52ch}
+.pick b.lockb{background:transparent;border-style:dashed;color:var(--v-hi)}
+.sel.blur{filter:blur(5px);user-select:none}
+details.m.free>summary{box-shadow:inset 3px 0 0 var(--win)}
+.freetag{font-family:var(--display);font-size:9px;letter-spacing:.14em;color:var(--win);border:1px solid rgba(59,232,168,.5);padding:2px 6px;margin-left:8px;vertical-align:2px}
+dialog.acct{border:0;padding:0;background:transparent;color:var(--ink);width:min(520px,calc(100% - 32px));max-height:calc(100% - 32px)}
+dialog.acct::backdrop{background:rgba(4,3,8,.78);backdrop-filter:blur(4px)}
+.acct-in{background:var(--panel);border:1px solid var(--line);padding:22px;display:flex;flex-direction:column;gap:16px;max-height:calc(100vh - 40px);overflow:auto}
+.acct-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.acct-top h2{font-family:var(--display);font-weight:800;font-size:16px;letter-spacing:.14em;text-transform:uppercase}
+.x{border:0;background:transparent;color:var(--muted);font-size:22px;line-height:1;cursor:pointer;padding:4px 8px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--panel-2);padding:4px}
+.seg button{border:0;background:transparent;color:var(--muted);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:9px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--v);color:#0B0718}
+.fld{display:flex;flex-direction:column;gap:6px}
+.fld label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.fld input{background:var(--bg);border:1px solid var(--line);color:var(--ink);font:inherit;font-size:16px;padding:11px 12px;outline:none}
+.fld input:focus{border-color:var(--v)}
+.fld small{font-size:12.5px;color:var(--muted)}
+.msg{font-size:13.5px;padding:10px 12px;background:var(--panel-2);color:var(--ink-2);border-left:3px solid var(--v)}
+.msg.err{border-left-color:var(--loss);color:#ffc2cf}.msg.ok{border-left-color:var(--win);color:#c9ffe9}
+.status{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:var(--panel-2)}
+.status b{font-family:var(--display);font-size:12px;letter-spacing:.14em}
+.status b.on{color:var(--win)}.status b.off{color:var(--muted)}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;counter-reset:s}
+.steps>li{counter-increment:s;background:var(--panel-2);padding:14px;display:flex;flex-direction:column;gap:10px}
+.steps>li>b::before{content:"Paso " counter(s) " · ";color:var(--v-hi);font-family:var(--display);font-size:11px;letter-spacing:.14em}
+.steps p{margin:0;font-size:14px;color:var(--ink-2)}
+.payid{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.payid code{font-family:var(--display);font-size:20px;font-weight:800;letter-spacing:.08em;color:var(--v-hi)}
+.row2{display:flex;gap:8px;flex-wrap:wrap}
+.row2 input{flex:1;min-width:0}
+
+/* ---------- pie de página ---------- */
+.foot{border-top:1px solid var(--line);background:linear-gradient(180deg,rgba(17,14,28,.6),#050409);position:relative}
+.foot::before{content:"";position:absolute;inset:-1px 0 auto 0;height:1px;background:linear-gradient(90deg,transparent,var(--v),transparent)}
+.foot-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:40px;padding-block:44px 32px}
+@media (max-width:820px){.foot-grid{grid-template-columns:minmax(0,1fr);gap:28px}}
+.foot-about{display:flex;flex-direction:column;gap:16px}
+.foot-about .logo svg{width:32px}
+.foot-about .wordmark{font-size:22px}
+.foot-about p{margin:0;color:var(--ink-2);max-width:48ch;font-size:14.5px}
+.foot-steps h3{font-family:var(--display);font-weight:800;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--v-hi);margin-bottom:14px}
+.foot-steps ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:12px;counter-reset:paso}
+.foot-steps li{counter-increment:paso;background:var(--panel);padding:14px 16px;display:flex;flex-direction:column;gap:6px;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%)}
+.foot-steps li::before{content:"0" counter(paso);font-family:var(--display);font-weight:800;font-size:13px;color:var(--v)}
+.foot-steps li b{font-size:15px}
+.foot-steps li span{font-size:13px;color:var(--muted)}
+.foot-bar{display:flex;justify-content:space-between;align-items:center;gap:12px 24px;flex-wrap:wrap;padding-block:18px 28px;border-top:1px solid var(--line)}
+.foot-bar p{margin:0}
+.credit{font-family:var(--display);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.credit a{text-transform:none;letter-spacing:.06em;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--v);padding-bottom:1px}
+.credit a:hover{color:var(--v-hi)}
+.legal{font-size:12px;color:var(--dim);max-width:70ch}
+
+.jersey{display:inline-block;flex:none;vertical-align:middle}
+@media (max-width:560px){
+  body.pub .upd{display:none}
+  .wordmark{font-size:22px;letter-spacing:.12em}.logo svg{width:30px}.upd{font-size:11px;max-width:48%}.upd strong{font-size:11.5px}
+  details.m>summary{grid-template-columns:48px minmax(0,1fr) auto;gap:10px;padding:11px 12px}
+  .pick{min-width:0}.pick b{max-width:100px;font-size:10.5px}
+  .stat-col{padding-right:8px}
+  .hrow .res{min-width:0}
+}
+@media (prefers-reduced-motion:no-preference){
+  .enter{animation:up .45s cubic-bezier(.2,.7,.2,1) both}
+  @keyframes up{from{transform:translateY(8px)}to{transform:none}}
+}
+</style>
+
+<div class="ticker" aria-label="Partidos del día"><div class="wrap" id="ticker"></div></div>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <a class="logo" href="#combo" aria-label="LA CASA, inicio">
+        <svg viewBox="0 0 506 536" aria-hidden="true"><path d="M0 218L218 0L506 288V536H335V126L173 288V536H0Z" fill="#856CFF"/></svg>
+        <span class="wordmark">LA <b>CASA</b></span>
+      </a>
+      <div class="brand-r">
+        <div class="upd">Actualizado<strong id="gen"></strong></div>
+        <button class="acct-btn cut" id="acctBtn" hidden>Entrar</button>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Secciones">
+      <button role="tab" class="cut" data-t="combo">Combinadas</button>
+      <button role="tab" class="cut" data-t="fut">Fútbol <span class="ct" id="n-fut"></span></button>
+      <button role="tab" class="cut" data-t="mlb">Béisbol <span class="ct" id="n-mlb"></span></button>
+      <button role="tab" class="cut" data-t="nba">NBA <span class="ct" id="n-nba"></span></button>
+      <button role="tab" class="cut" data-t="nfl">NFL <span class="ct" id="n-nfl"></span></button>
+      <button role="tab" class="cut" data-t="hist">Historial</button>
+      <button role="tab" class="cut" data-t="how">Cómo funciona</button>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap grid">
+  <main>
+    <section class="sec" id="sec-combo" hidden></section>
+    <section class="sec" id="sec-fut" hidden></section>
+    <section class="sec" id="sec-mlb" hidden></section>
+    <section class="sec" id="sec-nba" hidden></section>
+    <section class="sec" id="sec-nfl" hidden></section>
+    <section class="sec" id="sec-hist" hidden></section>
+    <section class="sec" id="sec-how" hidden>
+      <div class="h-sec"><div><div class="kick">El método</div><h2>Cómo funciona</h2></div></div>
+      <div class="how">
+        <article class="cut"><h3>Cada partido</h3><ul>
+          <li><b>Pronóstico</b>: el resultado más probable según el modelo, con su probabilidad.</li>
+          <li><b>Cuota mínima</b>: la cuota justa según el modelo. Si la casa de apuestas paga más, la apuesta tiene valor; si paga menos, no.</li>
+          <li><b>Noticias</b>: bajas, descansos y cambios que el modelo ya tomó en cuenta, con el ajuste aplicado.</li>
+          <li><b>Fuera de los números</b>: motivación, cansancio, estilo, clima o estadio, y cuánto movió cada factor el pronóstico.</li></ul></article>
+        <article class="cut"><h3>Béisbol</h3><p>Carreras anotadas y permitidas por juego de cada equipo. El abridor pesa el 59% del juego (unas 5⅓ entradas), medido por FIP: ponches, boletos y jonrones. A los abridores con pocos innings se les acerca al promedio de la liga. Se simulan 200.000 juegos.</p></article>
+        <article class="cut"><h3>Fútbol</h3><p>Rating Elo de cada equipo, calculado solo con resultados, más ventaja de local. Las bajas restan puntos Elo: una estrella entre 20 y 35, un titular entre 5 y 15. Con eso salen los goles esperados y cada marcador posible.</p></article>
+        <article class="cut"><h3>NBA y NFL</h3><p>Diferencial de puntos por partido de cada equipo más ventaja de local (2,3 puntos en NBA, 1,5 en NFL). Al inicio de la temporada se mezcla con la anterior. Las bajas, sobre todo estrellas y quarterbacks, restan puntos al margen esperado.</p></article>
+        <article class="cut"><h3>Las combinadas</h3><ul>
+          <li><b>Segura 1</b>: las 3 selecciones más probables del día, hasta 80%. Solo ganador, empate o doble oportunidad; en béisbol, solo ganadores desde 56%.</li>
+          <li><b>Segura 2</b>: las 3 siguientes con los mismos requisitos, siempre con partidos y equipos distintos a la Segura 1.</li></ul></article>
+        <article class="cut"><h3>Límites</h3><ul>
+          <li>El modelo empezó el 27/09/2026; el historial dirá en unas semanas qué tan bien acierta.</li>
+          <li>Los totales de carreras de MLB quedan fuera de las combinadas hasta calibrarlos.</li>
+          <li>Apuesta solo lo que estés dispuesto a perder: incluso un buen modelo falla muchas veces.</li></ul></article>
+        <article class="cut"><h3>Franelas</h3><p>Cada equipo se identifica con una franela en sus colores. No usamos escudos, logos ni banderas oficiales.</p></article>
+      </div>
+    </section>
+  </main>
+  <aside class="side" id="side" aria-label="Resumen"></aside>
+</div>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-about">
+        <div class="logo">
+          <svg viewBox="0 0 506 536" aria-hidden="true"><path d="M0 218L218 0L506 288V536H335V126L173 288V536H0Z" fill="#856CFF"/></svg>
+          <span class="wordmark">LA <b>CASA</b></span>
+        </div>
+        <p>LA CASA es una pizarra diaria de pronósticos deportivos para fútbol, béisbol, NBA y NFL. Cada partido trae su probabilidad, la cuota mínima que vale la pena y las noticias que la mueven. Los aciertos y los fallos quedan a la vista en el historial.</p>
+      </div>
+      <div class="foot-steps">
+        <h3>Cómo funciona</h3>
+        <ol>
+          <li><b>Datos</b><span>Cada mañana se cargan los partidos del día con las estadísticas de cada equipo: Elo en fútbol, carreras y abridores en béisbol, diferencial de puntos en NBA y NFL.</span></li>
+          <li><b>Noticias y contexto</b><span>Se ajusta por lesiones, descansos, motivación, cansancio y clima. Nunca se usan cuotas de casas de apuestas.</span></li>
+          <li><b>Pronóstico y resultados</b><span>El modelo calcula cada resultado posible y arma dos combinadas seguras por deporte. Los marcadores se cargan cada hora y cada fallo se explica.</span></li>
+        </ol>
+      </div>
+    </div>
+    <div class="foot-bar">
+      <p class="credit">Creado por <a href="https://www.instagram.com/lgsusoriginal/" target="_blank" rel="noopener">@lgsusoriginal</a></p>
+      <p class="legal">© 2026 LA CASA · Contenido informativo para mayores de 18 años. Ningún pronóstico es seguro: apuesta con responsabilidad y solo lo que estés dispuesto a perder.</p>
+    </div>
+  </div>
+</footer>
+
+<dialog class="acct" id="acct" aria-labelledby="acctTitle">
+  <div class="acct-in cut">
+    <div class="acct-top"><h2 id="acctTitle">Tu cuenta</h2><button class="x" id="acctClose" aria-label="Cerrar">×</button></div>
+    <div id="acctBody"></div>
+  </div>
+</dialog>
+
+<script>
+let DATA = {"date": "2026-09-27", "generated": "Domingo 27 de septiembre de 2026, 11:30 AM (hora de Venezuela)", "nba_start": "2026-10-20", "mlb": [{"id": "mlb-2026-09-27-BAL@NYY", "iso": "2026-09-27T15:20:00-04:00", "time": "3:20 PM", "home": {"abbr": "NYY", "name": "Yankees", "record": "93-68"}, "away": {"abbr": "BAL", "name": "Orioles", "record": "79-82"}, "locked": true}, {"id": "mlb-2026-09-27-NYM@WSH", "iso": "2026-09-27T15:05:00-04:00", "time": "3:05 PM", "home": {"abbr": "WSH", "name": "Nationals", "record": "76-85"}, "away": {"abbr": "NYM", "name": "Mets", "record": "74-87"}, "locked": true}, {"id": "mlb-2026-09-27-HOU@ATH", "iso": "2026-09-27T15:05:00-04:00", "time": "3:05 PM", "home": {"abbr": "ATH", "name": "Athletics", "record": "64-96", "rd": -218, "l10": "3-7"}, "away": {"abbr": "HOU", "name": "Astros", "record": "79-81", "rd": -52, "l10": "4-6"}, "sp_home": {"name": "Seth Johnson", "hand": "D", "ip": 16.3, "era": 5.51, "fip": 4.02, "k9": 11.0, "bb9": 7.7}, "sp_away": {"name": "Peter Lambert", "hand": "D", "ip": 153.7, "era": 3.87, "fip": 3.7, "k9": 9.0, "bb9": 3.5}, "context": "Astros pelean el Oeste de la AL (empatados con Texas): partido con motivación.", "news": [{"team": "HOU", "text": "Pelea el título del Oeste de la AL: debe ganar.", "effect": "sin ajuste numérico"}, {"team": "HOU", "text": "Houston no ha confirmado abridor; TriunfoBet anuncia a Peter Lambert.", "effect": "se usa Lambert"}], "xr_home": 4.38, "xr_away": 4.8, "pick": "Astros", "pick_p": 0.5435, "pick_rule": {"t": "ml", "side": "away"}, "markets": [{"group": "Ganador", "items": [{"label": "Athletics", "p": 0.4565, "fair": "+119", "kind": "ml", "rule": {"t": "ml", "side": "home"}}, {"label": "Astros", "p": 0.5435, "fair": "-119", "kind": "ml", "rule": {"t": "ml", "side": "away"}}]}, {"group": "Run line", "items": [{"label": "Athletics -1.5", "p": 0.3158, "fair": "+217", "kind": "rl", "rule": {"t": "hc", "side": "home", "line": -1.5}}, {"label": "Astros +1.5", "p": 0.6842, "fair": "-217", "kind": "rl", "rule": {"t": "hc", "side": "away", "line": 1.5}}, {"label": "Astros -1.5", "p": 0.3897, "fair": "+157", "kind": "rl", "rule": {"t": "hc", "side": "away", "line": -1.5}}, {"label": "Athletics +1.5", "p": 0.6103, "fair": "-157", "kind": "rl", "rule": {"t": "hc", "side": "home", "line": 1.5}}]}, {"group": "Total 9.5", "items": [{"label": "Más de 9.5", "p": 0.4221, "fair": "+137", "kind": "tot_mlb", "rule": {"t": "tot", "over": true, "line": 9.5}}, {"label": "Menos de 9.5", "p": 0.5779, "fair": "-137", "kind": "tot_mlb", "rule": {"t": "tot", "over": false, "line": 9.5}}]}], "free": true}, {"id": "mlb-2026-09-27-CHC@BOS", "iso": "2026-09-27T15:05:00-04:00", "time": "3:05 PM", "home": {"abbr": "BOS", "name": "Red Sox", "record": "87-74"}, "away": {"abbr": "CHC", "name": "Cubs", "record": "88-73"}, "locked": true}, {"id": "mlb-2026-09-27-TB@PHI", "iso": "2026-09-27T15:05:00-04:00", "time": "3:05 PM", "home": {"abbr": "PHI", "name": "Phillies", "record": "87-73"}, "away": {"abbr": "TB", "name": "Rays", "record": "97-63"}, "locked": true}, {"id": "mlb-2026-09-27-LAD@SF", "iso": "2026-09-27T15:05:00-04:00", "time": "3:05 PM", "home": {"abbr": "SF", "name": "Giants", "record": "65-95"}, "away": {"abbr": "LAD", "name": "Dodgers", "record": "98-62"}, "locked": true}, {"id": "mlb-2026-09-27-CIN@TOR", "iso": "2026-09-27T15:07:00-04:00", "time": "3:07 PM", "home": {"abbr": "TOR", "name": "Blue Jays", "record": "78-83"}, "away": {"abbr": "CIN", "name": "Reds", "record": "75-86"}, "locked": true}, {"id": "mlb-2026-09-27-COL@CWS", "iso": "2026-09-27T15:10:00-04:00", "time": "3:10 PM", "home": {"abbr": "CWS", "name": "White Sox", "record": "83-77"}, "away": {"abbr": "COL", "name": "Rockies", "record": "57-103"}, "locked": true}, {"id": "mlb-2026-09-27-PIT@DET", "iso": "2026-09-27T15:10:00-04:00", "time": "3:10 PM", "home": {"abbr": "DET", "name": "Tigers", "record": "76-85"}, "away": {"abbr": "PIT", "name": "Pirates", "record": "81-80"}, "locked": true}, {"id": "mlb-2026-09-27-CLE@KC", "iso": "2026-09-27T15:10:00-04:00", "time": "3:10 PM", "home": {"abbr": "KC", "name": "Royals", "record": "68-92"}, "away": {"abbr": "CLE", "name": "Guardians", "record": "84-76"}, "locked": true}, {"id": "mlb-2026-09-27-ATL@MIA", "iso": "2026-09-27T15:10:00-04:00", "time": "3:10 PM", "home": {"abbr": "MIA", "name": "Marlins", "record": "79-81"}, "away": {"abbr": "ATL", "name": "Braves", "record": "93-67"}, "locked": true}, {"id": "mlb-2026-09-27-STL@MIL", "iso": "2026-09-27T15:10:00-04:00", "time": "3:10 PM", "home": {"abbr": "MIL", "name": "Brewers", "record": "101-59"}, "away": {"abbr": "STL", "name": "Cardinals", "record": "77-83"}, "locked": true}, {"id": "mlb-2026-09-27-TEX@MIN", "iso": "2026-09-27T15:10:00-04:00", "time": "3:10 PM", "home": {"abbr": "MIN", "name": "Twins", "record": "76-84"}, "away": {"abbr": "TEX", "name": "Rangers", "record": "79-81"}, "locked": true}, {"id": "mlb-2026-09-27-ARI@SD", "iso": "2026-09-27T15:10:00-04:00", "time": "3:10 PM", "home": {"abbr": "SD", "name": "Padres", "record": "89-71"}, "away": {"abbr": "ARI", "name": "D-backs", "record": "86-74"}, "locked": true}, {"id": "mlb-2026-09-27-LAA@SEA", "iso": "2026-09-27T15:10:00-04:00", "time": "3:10 PM", "home": {"abbr": "SEA", "name": "Mariners", "record": "74-86"}, "away": {"abbr": "LAA", "name": "Angels", "record": "62-98"}, "locked": true}], "futbol": [{"id": "fut-2026-09-27-Serbia-Países Bajos", "iso": "2026-09-27T12:00:00-04:00", "when": "Dom 27/09 · 12:00 PM", "comp": "Liga de Naciones A", "neutral": false, "home": "Serbia", "away": "Países Bajos", "locked": true}, {"id": "fut-2026-09-27-Dinamarca-Gales", "iso": "2026-09-27T12:00:00-04:00", "when": "Dom 27/09 · 12:00 PM", "comp": "Liga de Naciones", "neutral": false, "home": "Dinamarca", "away": "Gales", "locked": true}, {"id": "fut-2026-09-27-Austria-Kosovo", "iso": "2026-09-27T12:00:00-04:00", "when": "Dom 27/09 · 12:00 PM", "comp": "Liga de Naciones B", "neutral": false, "home": "Austria", "away": "Kosovo", "locked": true}, {"id": "fut-2026-09-27-Gibraltar-Andorra", "iso": "2026-09-27T12:00:00-04:00", "when": "Dom 27/09 · 12:00 PM", "comp": "Liga de Naciones D", "neutral": false, "home": "Gibraltar", "away": "Andorra", "locked": true}, {"id": "fut-2026-09-27-Alemania-Grecia", "iso": "2026-09-27T14:45:00-04:00", "when": "Dom 27/09 · 2:45 PM", "comp": "Liga de Naciones A", "neutral": false, "home": "Alemania", "away": "Grecia", "locked": true}, {"id": "fut-2026-09-27-Noruega-Portugal", "iso": "2026-09-27T14:45:00-04:00", "when": "Dom 27/09 · 2:45 PM", "comp": "Liga de Naciones A", "neutral": false, "home": "Noruega", "away": "Portugal", "locked": true}, {"id": "fut-2026-09-27-Israel-Irlanda", "iso": "2026-09-27T14:45:00-04:00", "when": "Dom 27/09 · 2:45 PM", "comp": "Liga de Naciones B · en Debrecen (Hungría)", "neutral": true, "home": "Israel", "away": "Irlanda", "locked": true}, {"id": "fut-2026-09-28-Japón-Venezuela", "iso": "2026-09-28T06:25:00-04:00", "when": "Lun 28/09 · 6:25 AM", "comp": "Amistoso internacional", "neutral": false, "home": "Japón", "away": "Venezuela", "locked": true}, {"id": "fut-2026-09-28-Bélgica-Francia", "iso": "2026-09-28T14:45:00-04:00", "when": "Lun 28/09 · 2:45 PM", "comp": "Liga de Naciones A", "neutral": false, "home": "Bélgica", "away": "Francia", "locked": true}, {"id": "fut-2026-09-28-Turquía-Italia", "iso": "2026-09-28T14:45:00-04:00", "when": "Lun 28/09 · 2:45 PM", "comp": "Liga de Naciones A", "neutral": false, "home": "Turquía", "away": "Italia", "locked": true}, {"id": "fut-2026-09-29-España-Croacia", "iso": "2026-09-29T14:45:00-04:00", "when": "Mar 29/09 · 2:45 PM", "comp": "Liga de Naciones A", "neutral": false, "home": "España", "away": "Croacia", "locked": true}], "nba": [], "combos": {"mlb": {"segura": {"locked": true, "n": 3, "p": 0.2539, "fair": "+294"}}, "futbol": {"segura": {"locked": true, "n": 3, "p": 0.35, "fair": "+186"}}, "nba": {}}, "history": [{"id": "mlb-2026-09-27-BAL@NYY", "date": "2026-09-27", "sport": "mlb", "game": "Orioles @ Yankees", "pick": "Yankees", "p": 0.5101, "pick_rule": {"t": "ml", "side": "home"}, "score_home": null, "score_away": null, "status": "void", "result": "void", "score": null}, {"id": "mlb-2026-09-27-NYM@WSH", "date": "2026-09-27", "sport": "mlb", "game": "Mets @ Nationals", "pick": "Nationals", "p": 0.5721, "pick_rule": {"t": "ml", "side": "home"}, "score_home": 6, "score_away": 4, "status": null, "result": 1, "score": "6-4"}, {"id": "mlb-2026-09-27-HOU@ATH", "date": "2026-09-27", "sport": "mlb", "game": "Astros @ Athletics", "pick": "Astros", "p": 0.5435, "pick_rule": {"t": "ml", "side": "away"}, "score_home": null, "score_away": null, "status": null, "result": null, "score": null}, {"id": "mlb-2026-09-27-CHC@BOS", "date": "2026-09-27", "sport": "mlb", "game": "Cubs @ Red Sox", "pick": "Cubs", "p": 0.5055, "pick_rule": {"t": "ml", "side": "away"}, "score_home": 2, "score_away": 6, "status": null, "result": 1, "score": "2-6"}, {"id": "mlb-2026-09-27-TB@PHI", "date": "2026-09-27", "sport": "mlb", "game": "Rays @ Phillies", "pick": "Phillies", "p": 0.5624, "pick_rule": {"t": "ml", "side": "home"}, "score_home": 7, "score_away": 3, "status": null, "result": 1, "score": "7-3"}, {"id": "mlb-2026-09-27-LAD@SF", "date": "2026-09-27", "sport": "mlb", "game": "Dodgers @ Giants", "pick": "Dodgers", "p": 0.631, "pick_rule": {"t": "ml", "side": "away"}, "score_home": 1, "score_away": 5, "status": null, "result": 1, "score": "1-5"}, {"id": "mlb-2026-09-27-CIN@TOR", "date": "2026-09-27", "sport": "mlb", "game": "Reds @ Blue Jays", "pick": "Blue Jays", "p": 0.5332, "pick_rule": {"t": "ml", "side": "home"}, "score_home": 5, "score_away": 1, "status": null, "result": 1, "score": "5-1"}, {"id": "mlb-2026-09-27-COL@CWS", "date": "2026-09-27", "sport": "mlb", "game": "Rockies @ White Sox", "pick": "White Sox", "p": 0.5896, "pick_rule": {"t": "ml", "side": "home"}, "score_home": 4, "score_away": 2, "status": null, "result": 1, "score": "4-2"}, {"id": "mlb-2026-09-27-PIT@DET", "date": "2026-09-27", "sport": "mlb", "game": "Pirates @ Tigers", "pick": "Pirates", "p": 0.5089, "pick_rule": {"t": "ml", "side": "away"}, "score_home": 2, "score_away": 4, "status": null, "result": 1, "score": "2-4"}, {"id": "mlb-2026-09-27-CLE@KC", "date": "2026-09-27", "sport": "mlb", "game": "Guardians @ Royals", "pick": "Guardians", "p": 0.5351, "pick_rule": {"t": "ml", "side": "away"}, "score_home": 3, "score_away": 2, "status": null, "result": 0, "score": "3-2", "review": "Los Royals ganaron 3-2 en un juego cerrado; Cleveland ya tenía asegurada su división y no se jugaba nada."}, {"id": "mlb-2026-09-27-ATL@MIA", "date": "2026-09-27", "sport": "mlb", "game": "Braves @ Marlins", "pick": "Marlins", "p": 0.5575, "pick_rule": {"t": "ml", "side": "home"}, "score_home": 5, "score_away": 3, "status": null, "result": 1, "score": "5-3"}, {"id": "mlb-2026-09-27-STL@MIL", "date": "2026-09-27", "sport": "mlb", "game": "Cardinals @ Brewers", "pick": "Brewers", "p": 0.6824, "pick_rule": {"t": "ml", "side": "home"}, "score_home": 6, "score_away": 4, "status": null, "result": 1, "score": "6-4"}, {"id": "mlb-2026-09-27-TEX@MIN", "date": "2026-09-27", "sport": "mlb", "game": "Rangers @ Twins", "pick": "Twins", "p": 0.5044, "pick_rule": {"t": "ml", "side": "home"}, "score_home": 6, "score_away": 4, "status": null, "result": 1, "score": "6-4"}, {"id": "mlb-2026-09-27-ARI@SD", "date": "2026-09-27", "sport": "mlb", "game": "D-backs @ Padres", "pick": "D-backs", "p": 0.5685, "pick_rule": {"t": "ml", "side": "away"}, "score_home": 9, "score_away": 4, "status": null, "result": 0, "score": "9-4", "review": "Los Padres ganaron 9-4 en casa. Con esa derrota Arizona se quedó sin el último wildcard, que se llevó Filadelfia."}, {"id": "mlb-2026-09-27-LAA@SEA", "date": "2026-09-27", "sport": "mlb", "game": "Angels @ Mariners", "score_home": null, "score_away": null, "status": null, "result": null, "score": null, "locked": true}, {"id": "fut-2026-09-27-Serbia-Países Bajos", "date": "2026-09-27", "sport": "futbol", "game": "Serbia vs Países Bajos", "pick": "Países Bajos", "p": 0.6376, "pick_rule": {"t": "ml", "side": "away"}, "score_home": 1, "score_away": 2, "status": null, "result": 1, "score": "1-2"}, {"id": "fut-2026-09-27-Dinamarca-Gales", "date": "2026-09-27", "sport": "futbol", "game": "Dinamarca vs Gales", "pick": "Dinamarca", "p": 0.7257, "pick_rule": {"t": "ml", "side": "home"}, "score_home": 2, "score_away": 0, "status": null, "result": 1, "score": "2-0"}, {"id": "fut-2026-09-27-Austria-Kosovo", "date": "2026-09-27", "sport": "futbol", "game": "Austria vs Kosovo", "pick": "Austria", "p": 0.5887, "pick_rule": {"t": "ml", "side": "home"}, "score_home": 3, "score_away": 1, "status": null, "result": 1, "score": "3-1"}, {"id": "fut-2026-09-27-Gibraltar-Andorra", "date": "2026-09-27", "sport": "futbol", "game": "Gibraltar vs Andorra", "pick": "Gibraltar", "p": 0.3914, "pick_rule": {"t": "ml", "side": "home"}, "score_home": 0, "score_away": 0, "status": null, "result": 0, "score": "0-0", "review": "Partido muy cerrado entre dos de las selecciones más débiles de Europa: ninguno encontró el gol en 90'. Confirma que el modelo esperaba demasiados goles en este tipo de cruce."}, {"id": "fut-2026-09-27-Alemania-Grecia", "date": "2026-09-27", "sport": "futbol", "game": "Alemania vs Grecia", "pick": "Alemania", "p": 0.656, "pick_rule": {"t": "ml", "side": "home"}, "score_home": 0, "score_away": 1, "status": null, "result": 0, "score": "0-1", "review": "Grecia ganó 1-0 con un disparo desviado de Kourbelis, su primera victoria de la historia ante Alemania. Sin Musiala ni Havertz, Alemania no marcó."}, {"id": "fut-2026-09-27-Noruega-Portugal", "date": "2026-09-27", "sport": "futbol", "game": "Noruega vs Portugal", "pick": "Noruega", "p": 0.4515, "pick_rule": {"t": "ml", "side": "home"}, "score_home": 1, "score_away": 2, "status": null, "result": 0, "score": "1-2", "review": "Portugal ganó 2-1 en Oslo con una vaselina de Gonçalo Ramos, aun sin Bruno Fernandes. El modelo le dio demasiado peso a la localía de Noruega."}, {"id": "fut-2026-09-27-Israel-Irlanda", "date": "2026-09-27", "sport": "futbol", "game": "Israel vs Irlanda", "pick": "Irlanda", "p": 0.4232, "pick_rule": {"t": "ml", "side": "away"}, "score_home": 0, "score_away": 3, "status": null, "result": 1, "score": "0-3"}], "combo_history": [{"date": "2026-09-27", "sport": "mlb", "type": "segura", "p": 0.2539, "fair": "+294", "result": 1, "legs": [{"gid": "mlb-2026-09-27-STL@MIL", "label": "Brewers", "grp": "Ganador", "p": 0.6824, "rule": {"t": "ml", "side": "home"}, "game": "Cardinals @ Brewers", "result": 1, "score": "6-4"}, {"gid": "mlb-2026-09-27-LAD@SF", "label": "Dodgers", "grp": "Ganador", "p": 0.631, "rule": {"t": "ml", "side": "away"}, "game": "Dodgers @ Giants", "result": 1, "score": "1-5"}, {"gid": "mlb-2026-09-27-COL@CWS", "label": "White Sox", "grp": "Ganador", "p": 0.5896, "rule": {"t": "ml", "side": "home"}, "game": "Rockies @ White Sox", "result": 1, "score": "4-2"}]}, {"date": "2026-09-27", "sport": "futbol", "type": "segura", "p": 0.35, "fair": "+186", "result": 0, "legs": [{"gid": "fut-2026-09-27-Dinamarca-Gales", "label": "Dinamarca", "grp": "1X2", "p": 0.7257, "rule": {"t": "ml", "side": "home"}, "game": "Dinamarca vs Gales", "result": 1, "score": "2-0"}, {"gid": "fut-2026-09-27-Gibraltar-Andorra", "label": "Más de 1.5", "grp": "Total 1.5", "p": 0.7247, "rule": {"t": "tot", "over": true, "line": 1.5}, "game": "Gibraltar vs Andorra", "result": 0, "score": "0-0"}, {"gid": "fut-2026-09-27-Serbia-Países Bajos", "label": "Menos de 3.5", "grp": "Total 3.5", "p": 0.6655, "rule": {"t": "tot", "over": false, "line": 3.5}, "game": "Serbia vs Países Bajos", "result": 1, "score": "1-2"}]}], "nfl": [], "public": true};
+const PUBLIC = !!DATA.public;   // versión pública (sitio): pronósticos del día bloqueados salvo la muestra
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const pct=p=>(p*100).toFixed(1)+'%', pct0=p=>Math.round(p*100)+'%';
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $=id=>document.getElementById(id);
+let H=[], CH=[], RES={};
+
+/* ---------- franelas: colores de cada equipo (sin logos ni banderas) ---------- */
+// [principal, secundario, patrón opcional: 'rayas' | 'cuadros' | 'banda']
+const KIT_NAT={"Serbia":["#C6363C","#FFFFFF"],"Países Bajos":["#F36C21","#111111"],"Dinamarca":["#C60C30","#FFFFFF"],"Gales":["#D30731","#00A650"],"Austria":["#ED2939","#FFFFFF"],"Kosovo":["#244AA5","#D0A650"],"Gibraltar":["#DA000C","#FFFFFF"],"Andorra":["#10069F","#FEDF00"],"Alemania":["#F4F4F4","#111111"],"Grecia":["#0D5EAF","#FFFFFF"],"Noruega":["#BA0C2F","#00205B"],"Portugal":["#C8102E","#046A38"],"Israel":["#F4F4F4","#0038B8"],"Irlanda":["#169B62","#FFFFFF"],"Irlanda del Norte":["#00843D","#FFFFFF"],"Japón":["#0B2A6F","#FFFFFF"],"Venezuela":["#7A1E2E","#F2C200"],"Bélgica":["#D0021B","#111111"],"Francia":["#1B2A6B","#FFFFFF"],"Turquía":["#E30A17","#FFFFFF"],"Italia":["#1560BD","#FFFFFF"],"España":["#C60B1E","#FFC400"],"Croacia":["#E3001B","#FFFFFF","cuadros"],"Inglaterra":["#F4F4F4","#1B2A6B"],"Escocia":["#0B1F4B","#FFFFFF"],"Argentina":["#75AADB","#FFFFFF","rayas"],"Brasil":["#FEDD00","#009B3A"],"Colombia":["#FCD116","#003893"],"México":["#006847","#FFFFFF"],"Uruguay":["#5CBFEB","#111111"],"Chile":["#D52B1E","#0039A6"],"Ecuador":["#FFD100","#034EA2"],"Perú":["#F4F4F4","#D91023","banda"],"Paraguay":["#D52B1E","#FFFFFF","rayas"],"Bolivia":["#007A3D","#FFFFFF"],"Estados Unidos":["#F4F4F4","#1B2A6B"],"Canadá":["#D52B1E","#FFFFFF"],"Suiza":["#D52B1E","#FFFFFF"],"Suecia":["#FECC00","#005BAC"],"Polonia":["#F4F4F4","#DC143C"],"Ucrania":["#FFD500","#005BBB"],"Hungría":["#CD2A3E","#436F4D"],"Rumania":["#FCD116","#002B7F"],"Chequia":["#D7141A","#11457E"],"Eslovaquia":["#F4F4F4","#0B4EA2"],"Eslovenia":["#F4F4F4","#00A651"],"Islandia":["#02529C","#FFFFFF"],"Finlandia":["#F4F4F4","#002F6C"],"Georgia":["#F4F4F4","#E1261C"],"Lituania":["#FDB913","#006A44"],"Azerbaiyán":["#E4002B","#0092BC"],"Letonia":["#9E3039","#FFFFFF"],"Estonia":["#0072CE","#111111"],"Albania":["#E41E20","#111111"],"Bosnia y Herzegovina":["#002395","#FECB00"],"Montenegro":["#C40308","#D3AE3B"],"Macedonia del Norte":["#D20000","#FFE600"],"Bulgaria":["#F4F4F4","#00966E"],"Chipre":["#0047AB","#FFFFFF"],"Armenia":["#D90012","#F2A800"],"Kazajistán":["#00AFCA","#FEC50C"],"Luxemburgo":["#EF3340","#FFFFFF"],"Malta":["#CF142B","#FFFFFF"],"Moldavia":["#0046AE","#FFD200"],"Liechtenstein":["#002B7F","#CE1126"],"San Marino":["#5EB6E4","#FFFFFF"],"Feroe":["#F4F4F4","#0065BD"],"Bielorrusia":["#C8313E","#4AA657"],"Marruecos":["#C1272D","#006233"],"Senegal":["#F4F4F4","#00853F"],"Nigeria":["#008751","#FFFFFF"],"Egipto":["#CE1126","#FFFFFF"],"Corea del Sur":["#CD2E3A","#111111"],"Australia":["#FFCD00","#00843D"],"Irán":["#F4F4F4","#DA0000"],"Arabia Saudita":["#F4F4F4","#006C35"],"Catar":["#8A1538","#FFFFFF"],"Costa Rica":["#CE1126","#002B7F"],"Panamá":["#DA121A","#FFFFFF"],"Jamaica":["#FED100","#009B3A"],"Honduras":["#F4F4F4","#0073CF"]};
+const KIT_CLUB={"Arsenal":["#EF0107","#FFFFFF"],"Chelsea":["#034694","#FFFFFF"],"Liverpool":["#C8102E","#F6EB61"],"Manchester City":["#6CABDD","#FFFFFF"],"Manchester United":["#DA291C","#111111"],"Tottenham":["#F4F4F4","#132257"],"Newcastle":["#111111","#FFFFFF","rayas"],"Aston Villa":["#670E36","#95BFE5"],"West Ham":["#7A263A","#1BB1E7"],"Everton":["#003399","#FFFFFF"],"Brighton":["#0057B8","#FFFFFF"],"Nottingham Forest":["#DD0000","#FFFFFF"],"Real Madrid":["#F4F4F4","#FEBE10"],"Barcelona":["#A50044","#004D98","rayas"],"Atlético de Madrid":["#CB3524","#FFFFFF","rayas"],"Sevilla":["#F4F4F4","#D81E05"],"Real Betis":["#00954C","#FFFFFF","rayas"],"Villarreal":["#FFE667","#005187"],"Athletic Club":["#EE2523","#FFFFFF","rayas"],"Real Sociedad":["#0067B1","#FFFFFF","rayas"],"Valencia":["#F4F4F4","#111111"],"Inter":["#0068A8","#111111","rayas"],"Milan":["#FB090B","#111111","rayas"],"Juventus":["#111111","#FFFFFF","rayas"],"Napoli":["#12A0D7","#FFFFFF"],"Roma":["#8E1F2F","#F0BC42"],"Lazio":["#87D8F7","#FFFFFF"],"Atalanta":["#1E71B8","#111111","rayas"],"Bayern Múnich":["#DC052D","#FFFFFF"],"Borussia Dortmund":["#FDE100","#111111"],"Bayer Leverkusen":["#E32221","#111111"],"RB Leipzig":["#F4F4F4","#DD0741"],"PSG":["#004170","#DA291C"],"Marsella":["#F4F4F4","#2FAEE0"],"Lyon":["#F4F4F4","#DA0812"],"Mónaco":["#E7171B","#FFFFFF"],"Benfica":["#E83030","#FFFFFF"],"Porto":["#00428C","#FFFFFF","rayas"],"Sporting CP":["#008057","#FFFFFF","rayas"],"Ajax":["#F4F4F4","#D2122E"],"Celtic":["#018749","#FFFFFF","rayas"],"Caracas FC":["#D2112C","#FFFFFF"],"Deportivo Táchira":["#FFD100","#111111","rayas"],"Carabobo":["#7A1E2E","#FFFFFF"],"Deportivo La Guaira":["#F47B20","#1B2A6B"],"Metropolitanos":["#6A2C91","#FFFFFF"],"Monagas":["#1B3F8B","#E30613"],"Academia Puerto Cabello":["#1B3F8B","#FFD100"],"Portuguesa":["#E30613","#FFFFFF"],"Zamora":["#F4F4F4","#111111"],"Estudiantes de Mérida":["#E30613","#FFFFFF","rayas"],"Universidad Central":["#1B3F8B","#FFFFFF"],"Rayo Zuliano":["#1B3F8B","#FFD100"]};
+const KIT_MLB={NYY:["#132448","#FFFFFF","rayas"],BAL:["#DF4601","#111111"],BOS:["#BD3039","#0C2340"],TB:["#092C5C","#8FBCE6"],TOR:["#134A8E","#E8291C"],CLE:["#0C2340","#E31937"],CWS:["#27251F","#C4CED4"],MIN:["#002B5C","#D31145"],DET:["#0C2340","#FA4616"],KC:["#004687","#BD9B60"],HOU:["#002D62","#EB6E1F"],TEX:["#003278","#C0111F"],SEA:["#0C2C56","#00A3A3"],ATH:["#003831","#EFB21E"],LAA:["#BA0021","#003263"],ATL:["#13274F","#CE1141"],PHI:["#E81828","#FFFFFF","rayas"],MIA:["#00A3E0","#EF3340"],WSH:["#AB0003","#14225A"],NYM:["#002D72","#FF5910"],MIL:["#12284B","#FFC52F"],CHC:["#0E3386","#CC3433"],PIT:["#27251F","#FDB827"],STL:["#C41E3A","#0C2340"],CIN:["#C6011F","#111111"],LAD:["#005A9C","#FFFFFF"],SD:["#2F241D","#FFC425"],ARI:["#A71930","#E3D4AD"],SF:["#FD5A1E","#27251F"],COL:["#33006F","#C4CED4"]};
+const KIT_NBA={ATL:["#E03A3E","#C1D32F"],BOS:["#007A33","#FFFFFF"],BKN:["#111111","#FFFFFF"],CHA:["#1D1160","#00788C"],CHI:["#CE1141","#111111"],CLE:["#860038","#FDBB30"],DAL:["#00538C","#B8C4CA"],DEN:["#0E2240","#FEC524"],DET:["#C8102E","#1D42BA"],GSW:["#1D428A","#FFC72C"],HOU:["#CE1141","#FFFFFF"],IND:["#002D62","#FDBB30"],LAC:["#C8102E","#1D428A"],LAL:["#552583","#FDB927"],MEM:["#5D76A9","#12173F"],MIA:["#98002E","#F9A01B"],MIL:["#00471B","#EEE1C6"],MIN:["#0C2340","#78BE20"],NOP:["#0C2340","#C8102E"],NYK:["#006BB6","#F58426"],OKC:["#007AC1","#EF3B24"],ORL:["#0077C0","#C4CED4"],PHI:["#006BB6","#ED174C"],PHX:["#1D1160","#E56020"],POR:["#E03A3E","#111111"],SAC:["#5A2D81","#63727A"],SAS:["#C4CED4","#111111"],TOR:["#CE1141","#111111"],UTA:["#002B5C","#F9A01B"],WAS:["#002B5C","#E31837"]};
+const KIT_NFL={ARI:["#97233F","#FFFFFF"],ATL:["#A71930","#111111"],BAL:["#241773","#9E7C0C"],BUF:["#00338D","#C60C30"],CAR:["#0085CA","#111111"],CHI:["#0B162A","#C83803"],CIN:["#FB4F14","#111111","rayas"],CLE:["#311D00","#FF3C00"],DAL:["#F4F4F4","#041E42"],DEN:["#FB4F14","#002244"],DET:["#0076B6","#B0B7BC"],GB:["#203731","#FFB612"],HOU:["#03202F","#A71930"],IND:["#002C5F","#FFFFFF"],JAX:["#006778","#D7A22A"],KC:["#E31837","#FFB81C"],LV:["#111111","#A5ACAF"],LAC:["#0080C6","#FFC20E"],LAR:["#003594","#FFA300"],MIA:["#008E97","#FC4C02"],MIN:["#4F2683","#FFC62F"],NE:["#002244","#C60C30"],NO:["#111111","#D3BC8D"],NYG:["#0B2265","#A71930"],NYJ:["#125740","#FFFFFF"],PHI:["#004C54","#A5ACAF"],PIT:["#111111","#FFB612"],SF:["#AA0000","#B3995D"],SEA:["#002244","#69BE28"],TB:["#D50A0A","#34302B"],TEN:["#4B92DB","#0C2340"],WAS:["#5A1414","#FFB612"]};
+function hashKit(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return [`hsl(${h%360} 55% 42%)`,`hsl(${(h>>9)%360} 30% 88%)`];}
+function kitFor(name,abbr,sport){
+  const m=sport==='mlb'?KIT_MLB:sport==='nba'?KIT_NBA:sport==='nfl'?KIT_NFL:null;
+  return (m&&abbr&&m[abbr])||KIT_NAT[name]||KIT_CLUB[name]||hashKit(name||abbr||'?');
+}
+let JID=0;
+const SHIRT="M8.2 2.2L3.6 4.4 1 9l3.2 2.2 1.9-1.6V22h11.8V9.6l1.9 1.6L23 9l-2.6-4.6-4.6-2.2c-.8 1.5-2.2 2.4-3.8 2.4S9 3.7 8.2 2.2z";
+function jersey(name,abbr,sport,size=22){
+  const [a,b,pat]=kitFor(name,abbr,sport); const id='j'+(++JID);
+  let fill=`<path d="${SHIRT}" fill="${a}"/>`;
+  if(pat==='rayas') fill+=`<g clip-path="url(#${id})">${[7.2,11.2,15.2].map(x=>`<rect x="${x}" y="0" width="2" height="24" fill="${b}"/>`).join('')}</g>`;
+  if(pat==='cuadros') fill+=`<g clip-path="url(#${id})">${[0,1,2,3,4,5].flatMap(r=>[0,1,2,3,4,5].filter(c=>(r+c)%2).map(c=>`<rect x="${c*4}" y="${r*4}" width="4" height="4" fill="${b}"/>`)).join('')}</g>`;
+  if(pat==='banda') fill+=`<g clip-path="url(#${id})"><path d="M4 4L8 2 22 22H16z" fill="${b}"/></g>`;
+  return `<svg class="jersey" width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true"><defs><clipPath id="${id}"><path d="${SHIRT}"/></clipPath></defs>${fill}<path d="M1 9l3.2 2.2 1.9-1.6V7.2L3.6 4.4zM23 9l-3.2 2.2-1.9-1.6V7.2l2.5-2.8z" fill="${b}" opacity=".9"/><path d="M8.2 2.2c.8 1.5 2.2 2.4 3.8 2.4s3-.9 3.8-2.4" fill="none" stroke="${b}" stroke-width="1.3"/><path d="${SHIRT}" fill="none" stroke="rgba(0,0,0,.35)" stroke-width=".6"/></svg>`;
+}
+
+/* ---------- partidos ---------- */
+const SPORTS=[{k:'futbol',tab:'fut',name:'Fútbol',tag:'FUT'},{k:'mlb',tab:'mlb',name:'Béisbol',tag:'MLB'},{k:'nba',tab:'nba',name:'NBA',tag:'NBA'},{k:'nfl',tab:'nfl',name:'NFL',tag:'NFL'}];
+let G=[], BYID={};
+function setData(d){
+  DATA=d; DATA.nfl=DATA.nfl||[]; DATA.nba=DATA.nba||[];
+  H=DATA.history||[]; CH=DATA.combo_history||[]; RES={}; H.forEach(e=>RES[e.id]=e);
+  G=[]; SPORTS.forEach(s=>(DATA[s.k]||[]).forEach(g=>{
+    const fut=s.k==='futbol';
+    G.push({id:g.id,sport:s.k,tag:s.tag,g,iso:g.iso,
+      home:fut?{name:g.home}:{name:g.home.name,abbr:g.home.abbr},
+      away:fut?{name:g.away}:{name:g.away.name,abbr:g.away.abbr},
+      comp:fut?g.comp:(s.k==='mlb'?'MLB · Temporada regular':s.name)});
+  }));
+  BYID={}; G.forEach(x=>BYID[x.id]=x);
+}
+function started(x){return new Date(x.iso)<=new Date();}
+function localTime(iso){const d=new Date(iso);return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/Caracas'});}
+const todayCCS=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Caracas'}).format(new Date());
+function dayLabel(iso){const d=iso.slice(0,10); return d===todayCCS?'':d.slice(8,10)+'/'+d.slice(5,7);}
+function status(x){
+  const r=RES[x.id];
+  if(r&&r.status==='void') return {k:'void',label:'SUSP.'};
+  if(r&&r.score_home!=null) return {k:'fin',label:'FIN',sh:r.score_home,sa:r.score_away};
+  if(started(x)) return {k:'on',label:'EMPEZÓ'};
+  return {k:'pre',label:localTime(x.iso),day:dayLabel(x.iso)};
+}
+function order(x){return x.sport==='futbol'?['home','away']:['away','home'];}
+
+/* ---------- barra superior ---------- */
+function buildTicker(){
+  const list=[...G].sort((a,b)=>a.iso.localeCompare(b.iso));
+  let lastDay=null, h='';
+  list.forEach(x=>{
+    const d=x.iso.slice(0,10);
+    if(d!==lastDay){ h+=`<span class="tk-day">${d===todayCCS?'HOY':d.slice(8,10)+'/'+d.slice(5,7)}</span>`; lastDay=d; }
+    const st=status(x), [p,q]=order(x);
+    const sc=side=>side==='home'?st.sh:st.sa;
+    const mid=st.k==='fin'?`<span class="sc num">${sc(p)}-${sc(q)}</span>`:`<span class="vs">·</span>`;
+    h+=`<button class="tk cut" data-go="${esc(x.id)}" aria-label="${esc(x[p].name)} contra ${esc(x[q].name)}"><span class="sp">${x.tag}</span><span class="st ${st.k==='fin'?'fin':''}">${st.label}</span>${jersey(x[p].name,x[p].abbr,x.sport,18)}${mid}${jersey(x[q].name,x[q].abbr,x.sport,18)}</button>`;
+  });
+  $('ticker').innerHTML=h||'<span class="tk-day">Sin partidos hoy</span>';
+  document.querySelectorAll('.tk').forEach(b=>b.addEventListener('click',()=>{
+    const x=BYID[b.dataset.go]; show(SPORTS.find(s=>s.k===x.sport).tab);
+    const el=document.getElementById('m-'+x.id); if(el){el.open=true; el.scrollIntoView({block:'center',behavior:'smooth'});}
+  }));
+}
+
+/* ---------- filas ---------- */
+function teamLine(x,side,prob,fav,st){
+  const t=x[side]; const sc=st.k==='fin'?(side==='home'?st.sh:st.sa):null;
+  const other=st.k==='fin'?(side==='home'?st.sa:st.sh):null;
+  const lost=st.k==='fin'&&sc<other;
+  return `<div class="tm${fav?' fav':''}${lost?' lost':''}">${jersey(t.name,t.abbr,x.sport)}<span class="nm">${esc(t.name)}</span>${sc!=null?`<span class="score num">${sc}</span>`:prob==null?'':`<span class="rt">${pct0(prob)}</span>`}</div>`;
+}
+function statCol(st){
+  if(st.k==='fin') return `<div class="stat-col"><span class="fin">FIN</span></div>`;
+  if(st.k==='void') return `<div class="stat-col"><span class="void">SUSP.</span></div>`;
+  if(st.k==='on') return `<div class="stat-col"><span class="on">EMPEZÓ</span></div>`;
+  const [hm,ap]=st.label.split(' ');
+  return `<div class="stat-col">${st.day?`<span>${st.day}</span>`:''}<b class="num">${hm}</b>${ap||''}</div>`;
+}
+const LOCK='<svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align:-1px;margin-right:5px"><path fill="currentColor" d="M6 10V7a6 6 0 1 1 12 0v3h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1zm2 0h8V7a4 4 0 1 0-8 0z"/></svg>';
+function paywall(msg){
+  return `<div class="paywall cut"><div><b>${LOCK}Contenido para suscriptores</b><p>${msg||'Pronóstico, probabilidades, noticias y análisis de este partido.'} Suscríbete por <b>10 USDT al mes</b> con Binance Pay.</p></div><button class="btn-v cut" data-open="acct">Suscribirme</button></div>`;
+}
+function pickCell(x,st){
+  const r=RES[x.id];
+  if(x.g.locked){
+    const done=st.k==='fin'&&r&&(r.result===1||r.result===0);
+    if(done) return `<div class="pick"><small>${r.result===1?'Acertó':'Falló'}</small><b class="${r.result===1?'ok':'no'}">${esc(r.pick)}</b><em>${pct(r.p)}</em></div>`;
+    return `<div class="pick"><small>Pronóstico</small><b class="lockb">${LOCK}Premium</b><em>Suscriptores</em></div>`;
+  } const done=st.k==='fin'&&r&&(r.result===1||r.result===0);
+  const cls=done?(r.result===1?'ok':'no'):'';
+  return `<div class="pick"><small>${done?(r.result===1?'Acertó':'Falló'):x.g.free?'Muestra gratis':'Pronóstico'}</small><b class="${cls}">${esc(x.g.pick)}</b><em>${pct(x.g.pick_p)}</em></div>`;
+}
+function probBar(x){
+  const m=x.g.markets[0].items;
+  const segs=x.sport==='futbol'?[[x.home.name,m[0].p],['Empate',m[1].p],[x.away.name,m[2].p]]:[[x.away.name,m[1].p],[x.home.name,m[0].p]];
+  const best=Math.max(...segs.map(s=>s[1]));
+  return `<div class="pbar"><div class="bar">${segs.map(s=>`<i class="${s[1]===best?'hi':''}" style="width:${(s[1]*100).toFixed(1)}%"></i>`).join('')}</div><div class="lbl">${segs.map(s=>`<span>${esc(s[0])} <b>${pct(s[1])}</b></span>`).join('')}</div></div>`;
+}
+function notes(arr,k1,k2){if(!arr||!arr.length) return '';return `<ul class="notes">${arr.map(n=>`<li><span class="tag">${esc(n[k1])}</span><span>${esc(n.text)}</span>${n[k2]?`<span class="eff">${esc(n[k2])}</span>`:''}</li>`).join('')}</ul>`;}
+function blk(t,inner){return inner?`<div class="blk"><h4>${t}</h4>${inner}</div>`:'';}
+function markets(ms,mlb){
+  return `<div class="mkts">${ms.map(g=>{const best=Math.max(...g.items.map(i=>i.p));
+    return `<div class="mkt cut"><h5>${esc(g.group)}${mlb&&g.items[0].kind==='tot_mlb'?' · con cautela':''}</h5><div class="opts">${g.items.map(i=>`<div class="opt ${i.p===best&&g.items.length<=3?'best':''}"><span title="${esc(i.label)}">${esc(i.label)}</span><b class="num">${pct(i.p)}</b><small>Cuota mín. ${esc(i.fair)}</small></div>`).join('')}</div></div>`;}).join('')}</div>`;
+}
+function spTile(sp,team){
+  if(!sp) return `<div class="tile"><span>Abridor ${esc(team)}</span><b>Sin anunciar</b><small>Se usa el pitcheo del equipo</small></div>`;
+  return `<div class="tile"><span>Abridor ${esc(team)}</span><b>${esc(sp.name)}</b><small>${sp.hand==='I'?'Zurdo':'Derecho'} · ERA ${sp.era.toFixed(2)} · FIP ${sp.fip.toFixed(2)} · ${sp.ip} IP${sp.ip<40?' · muestra pequeña':''}</small></div>`;
+}
+function detail(x){
+  const g=x.g, r=RES[x.id]; let tiles='';
+  if(g.locked) return `<div class="det">${r&&r.review&&r.result===0?`<div class="why"><b>Por qué falló:</b> ${esc(r.review)}</div>`:''}${paywall()}</div>`;
+  if(x.sport==='futbol'){
+    const adj=v=>v?` (${v>0?'+':''}${v})`:'';
+    tiles=`<div class="tile"><span>Goles esperados</span><b class="num">${g.xg_home.toFixed(2)} – ${g.xg_away.toFixed(2)}</b></div><div class="tile"><span>Elo ${esc(g.home)}</span><b class="num">${g.elo_home}${adj(g.adj_home)}</b></div><div class="tile"><span>Elo ${esc(g.away)}</span><b class="num">${g.elo_away}${adj(g.adj_away)}</b></div>`;
+  } else if(x.sport==='mlb'){
+    tiles=`<div class="tile"><span>Carreras esperadas</span><b class="num">${g.xr_away.toFixed(1)} – ${g.xr_home.toFixed(1)}</b></div><div class="tile"><span>${esc(g.away.name)}</span><b class="num">${g.away.record}</b><small>Dif. carreras ${g.away.rd>0?'+':''}${g.away.rd} · últimos 10: ${g.away.l10}</small></div><div class="tile"><span>${esc(g.home.name)} (local)</span><b class="num">${g.home.record}</b><small>Dif. carreras ${g.home.rd>0?'+':''}${g.home.rd} · últimos 10: ${g.home.l10}</small></div>${spTile(g.sp_away,g.away.name)}${spTile(g.sp_home,g.home.name)}`;
+  } else {
+    tiles=`<div class="tile"><span>Margen esperado</span><b>${esc(g.margin>0?g.home.name:g.away.name)} por ${Math.abs(g.margin).toFixed(1)}</b></div><div class="tile"><span>Total esperado</span><b class="num">${g.total.toFixed(0)} pts</b></div><div class="tile"><span>Récords</span><b class="num">${esc(g.away.record||'—')} · ${esc(g.home.record||'—')}</b></div>`;
+  }
+  const where=x.sport==='futbol'?`${esc(g.when)}${g.neutral?' · campo neutral':''}`:`${esc(g.away.name)} @ ${esc(g.home.name)} · ${esc(g.time)} (hora de Venezuela)`;
+  return `<div class="det">
+    ${r&&r.review&&r.result===0?`<div class="why"><b>Por qué falló:</b> ${esc(r.review)}</div>`:''}
+    ${probBar(x)}
+    <div class="tiles">${tiles}</div>
+    ${blk('Noticias',notes(g.news,'team','effect'))}
+    ${blk('Fuera de los números',notes(g.analysis,'factor','impact'))}
+    ${blk('Mercados',markets(g.markets,x.sport==='mlb'))}
+    ${x.sport==='futbol'&&g.scores?`<div class="sub">Marcadores más probables: ${g.scores.map(s=>`<b class="num">${s.s}</b> (${pct(s.p)})`).join(' · ')}</div>`:''}
+    <div class="sub">${where}</div>
+  </div>`;
+}
+function row(x){
+  const st=status(x), [p,q]=order(x);
+  let ph=null,pa=null,pd=null;
+  if(!x.g.locked){ const m=x.g.markets[0].items;
+    if(x.sport==='futbol'){ph=m[0].p;pd=m[1].p;pa=m[2].p;} else {ph=m[0].p;pa=m[1].p;} }
+  const prob={home:ph,away:pa}, best=x.g.locked?-1:Math.max(ph,pa,pd||0);
+  return `<details class="m${x.g.free?' free':''}" id="m-${esc(x.id)}" data-st="${st.k}"><summary>${statCol(st)}<div class="teams">${teamLine(x,p,prob[p],prob[p]===best,st)}${teamLine(x,q,prob[q],prob[q]===best,st)}${pd!=null&&st.k!=='fin'?`<span class="drawline">Empate ${pct0(pd)}</span>`:''}</div>${pickCell(x,st)}</summary>${detail(x)}</details>`;
+}
+function buildSport(s){
+  const sec=$('sec-'+s.tab), list=G.filter(x=>x.sport===s.k);
+  const head=`<div class="h-sec"><div><div class="kick">${list.length} partido${list.length===1?'':'s'}</div><h2>${s.name}</h2></div>`;
+  if(!list.length){
+    const msg=s.k==='nba'?'La temporada 2026-27 de la NBA empieza el <b>martes 20 de octubre</b>. Desde ese día aparecen aquí los partidos con sus pronósticos.':s.k==='nfl'?'Hoy no hay partidos de NFL. La NFL juega sobre todo <b>jueves, domingos y lunes</b>.':'Hoy no hay partidos.';
+    sec.innerHTML=head+`</div><p class="info cut">${msg}</p>`; return;
+  }
+  const cnt=k=>list.filter(x=>status(x).k===k).length;
+  const groups={}; list.forEach(x=>(groups[x.comp]=groups[x.comp]||[]).push(x));
+  sec.innerHTML=head+`<div class="filters" role="group" aria-label="Filtrar partidos"><button aria-pressed="true" data-f="all">Todos ${list.length}</button><button aria-pressed="false" data-f="fin">Finalizados ${cnt('fin')}</button><button aria-pressed="false" data-f="pre">Por jugar ${cnt('pre')}</button></div></div>`+
+    Object.entries(groups).map(([c,arr])=>`<div class="board cut enter"><div class="board-h"><span class="ic">${s.tag}</span><h3>${esc(c)}</h3><span>${arr.length} partido${arr.length>1?'s':''}</span></div>${arr.map(row).join('')}</div>`).join('');
+  sec.querySelectorAll('.filters button').forEach(b=>b.addEventListener('click',()=>{
+    sec.querySelectorAll('.filters button').forEach(o=>o.setAttribute('aria-pressed',String(o===b)));
+    const f=b.dataset.f;
+    sec.querySelectorAll('details.m').forEach(d=>d.hidden=!(f==='all'||d.dataset.st===f));
+    sec.querySelectorAll('.board').forEach(bd=>bd.hidden=![...bd.querySelectorAll('details.m')].some(d=>!d.hidden));
+  }));
+}
+
+/* ---------- combinadas ---------- */
+const CT=[{k:'segura',title:'Segura 1',desc:s=>s==='mlb'?'Los 3 ganadores más probables del día (56% o más cada uno).':'Las 3 selecciones más probables del día (62% o más, hasta 80%).'},
+          {k:'segura2',title:'Segura 2',desc:s=>s==='mlb'?'Los 3 siguientes ganadores más probables, con equipos distintos.':'Las 3 siguientes selecciones más probables, con equipos distintos.'}];
+const TLBL={segura:'Segura 1',segura2:'Segura 2'};
+function resCls(r){return r===1?'ok':r===0?'no':r==='void'?'void':'pend';}
+function resTxt(r){return r===1?'Acertó':r===0?'Falló':r==='void'?'Anulada':'Pendiente';}
+function histCombo(sport,type,date){return CH.find(c=>c.sport===sport&&c.type===type&&c.date===date);}
+function legJerseys(gid,sport){
+  const x=BYID[gid]; if(!x) return '<span class="jj"></span>';
+  const [p,q]=order(x); return `<span class="jj">${jersey(x[p].name,x[p].abbr,sport,18)}${jersey(x[q].name,x[q].abbr,sport,18)}</span>`;
+}
+function gname(gid,fallback){const x=BYID[gid]; if(!x) return fallback||gid; return x.sport==='futbol'?`${x.home.name} vs ${x.away.name}`:`${x.away.name} @ ${x.home.name}`;}
+function legLi(l,sport,hl){
+  const lr=hl?hl.result:null;
+  return `<li class="${resCls(lr)}">${legJerseys(l.gid,sport)}<div style="min-width:0"><div class="gm">${esc(gname(l.gid,l.game||(hl&&hl.game)))}${hl&&hl.score?` · <span class="num">${esc(hl.score)}</span>`:''}</div><div class="sel">${esc(l.label)}<small>${esc(l.grp)}</small></div></div><div class="lp"><span class="num">${pct(l.p)}</span><i>${lr==null?'':resTxt(lr).toUpperCase()}</i></div></li>`;
+}
+function comboCard(sport,ct,c,hc){
+  const res=hc?hc.result:null, D=1/c.p;
+  if(c.locked) return `<article class="combo cut enter"><div class="ch"><div><h3>${ct.title}</h3><p>${ct.desc(sport)}</p></div><span class="badge ${resCls(res)}">${res==null?'Premium':resTxt(res)}</span></div>
+    <ul class="legs">${Array.from({length:c.n||3},()=>`<li class="pend"><span class="jj">${LOCK}</span><div><div class="gm">Selección oculta</div><div class="sel blur">Equipo · Ganador</div></div><div class="lp"><span class="num">··%</span></div></li>`).join('')}</ul>
+    <div class="cfoot"><div><span>Chance de ganar</span><b class="num">${pct(c.p)}</b></div><div><span>Cuota mínima</span><b class="num">${esc(c.fair)}</b></div></div>${paywall('Las selecciones de esta combinada.')}</article>`;
+  return `<article class="combo cut enter"><div class="ch"><div><h3>${ct.title}</h3><p>${ct.desc(sport)}</p></div><span class="badge ${resCls(res)}">${resTxt(res)}</span></div><ul class="legs">${c.legs.map((l,i)=>legLi(l,sport,hc&&hc.legs[i])).join('')}</ul>
+    <div class="cfoot"><div><span>Chance de ganar</span><b class="num">${pct(c.p)}</b></div><div><span>Cuota mínima</span><b class="num">${esc(c.fair)}</b></div></div>
+    <p class="note" style="padding:0 18px 16px">Se gana más o menos 1 de cada ${Math.round(D)} veces. Con 100 apostados, pide que pague al menos ${Math.round(100*D).toLocaleString('es-VE')}.</p></article>`;
+}
+function buildCombos(){
+  let h=`<div class="h-sec"><div><div class="kick">Del día</div><h2>Combinadas</h2></div><p>Dos combinadas seguras por deporte con partidos distintos: un mismo resultado nunca tumba las dos.</p></div>`;
+  SPORTS.forEach(s=>{
+    const cs=(DATA.combos||{})[s.k]||{}, games=(DATA[s.k]||[]).length;
+    let body;
+    if(!games) body=`<p class="info cut">${s.k==='nba'?'La NBA empieza el martes 20 de octubre; desde ese día aparecen aquí sus dos seguras.':s.k==='nfl'?'Hoy no hay partidos de NFL. La NFL juega sobre todo jueves, domingos y lunes.':'Hoy no hay partidos.'}</p>`;
+    else if(!cs.segura&&!cs.segura2) body=`<p class="info cut">Hoy no hay selecciones suficientes para armar combinadas seguras.</p>`;
+    else body=`<div class="combos">${CT.map(ct=>{const c=cs[ct.k];
+      if(!c) return `<article class="combo cut"><div class="ch"><div><h3>${ct.title}</h3></div></div><p class="empty">${ct.k==='segura2'&&DATA.date<='2026-09-27'?'La Segura 2 empieza con los partidos del 28/09/2026.':'Hoy no hay suficientes partidos distintos para armarla sin repetir los de la Segura 1.'}</p></article>`;
+      return comboCard(s.k,ct,c,histCombo(s.k,ct.k,DATA.date));}).join('')}</div>`;
+    h+=`<div class="sec" style="gap:10px"><div class="sporthd"><h3>${s.name}</h3><span>${games} partido${games===1?'':'s'}</span></div>${body}</div>`;
+  });
+  h+=`<p class="note"><b style="color:var(--ink)">Cuota mínima:</b> lo mínimo que debería pagarte la casa de apuestas por esa combinada para que valga la pena según el modelo.</p>`;
+  $('sec-combo').innerHTML=h;
+}
+
+/* ---------- panel lateral ---------- */
+function gauge(real,exp){
+  const R=38,C=2*Math.PI*R, v=real==null?0:real, e=exp||0;
+  return `<svg viewBox="0 0 92 92" aria-hidden="true"><circle cx="46" cy="46" r="${R}" fill="none" stroke="#211B37" stroke-width="9"/><circle cx="46" cy="46" r="${R}" fill="none" stroke="#856CFF" stroke-width="9" stroke-dasharray="${(v*C).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 46 46)"/>${exp!=null?`<line x1="46" y1="2" x2="46" y2="16" stroke="#F2EFFF" stroke-width="2.5" transform="rotate(${(e*360).toFixed(1)} 46 46)"/>`:''}</svg>`;
+}
+function buildSide(){
+  const done=H.filter(e=>e.result===1||e.result===0);
+  const hits=done.filter(e=>e.result===1).length;
+  const real=done.length?hits/done.length:null, exp=done.length?done.reduce((s,e)=>s+e.p,0)/done.length:null;
+  const cDone=CH.filter(c=>c.result===1||c.result===0);
+  let h=`<div class="card cut"><h3>Rendimiento</h3><div class="gauge">${gauge(real,exp)}<div><div class="gv num">${real==null?'—':pct0(real)}</div><div class="gl">pronósticos acertados (${hits}/${done.length})</div><div class="gl">La marca blanca es lo que esperaba el modelo: ${exp==null?'—':pct0(exp)}</div></div></div>
+    <div class="mini"><div class="row"><span>Combinadas acertadas</span><b class="num">${cDone.filter(c=>c.result===1).length}/${cDone.length}</b></div></div></div>`;
+  const today=[]; SPORTS.forEach(s=>CT.forEach(ct=>{const c=((DATA.combos||{})[s.k]||{})[ct.k]; if(c) today.push({s,ct,c,hc:histCombo(s.k,ct.k,DATA.date)});}));
+  if(today.length) h+=`<div class="card cut"><h3>Seguras de hoy</h3><div class="mini">${today.map(t=>`<div class="row"><span>${t.s.name} · ${t.ct.title} <span class="num" style="color:var(--muted)">${pct(t.c.p)}</span></span><b class="${resCls(t.hc?t.hc.result:null)}">${resTxt(t.hc?t.hc.result:null).toUpperCase()}</b></div>`).join('')}</div></div>`;
+  h+=`<div class="brandcard cut"><svg viewBox="0 0 506 536" aria-hidden="true"><path d="M0 218L218 0L506 288V536H335V126L173 288V536H0Z" fill="#856CFF"/></svg><p>Pronósticos hechos solo con estadísticas, noticias y contexto. Nunca con cuotas de casas de apuestas.</p></div>`;
+  $('side').innerHTML=h;
+}
+
+/* ---------- historial ---------- */
+function fmtDate(d){return d.split('-').reverse().join('/');}
+function buildHist(){
+  const done=H.filter(e=>e.result===1||e.result===0), cDone=CH.filter(c=>c.result===1||c.result===0);
+  const legs=CH.flatMap(c=>c.legs).filter(l=>l.result===1||l.result===0);
+  const r=a=>a.length?`${a.filter(x=>x.result===1).length}/${a.length}`:'—';
+  const pr=a=>a.length?pct0(a.filter(x=>x.result===1).length/a.length):'—';
+  const ex=a=>a.length?pct0(a.reduce((s,x)=>s+x.p,0)/a.length):'—';
+  let h=`<div class="h-sec"><div><div class="kick">Resultados</div><h2>Historial</h2></div><p>Los marcadores se cargan cada hora. "Esperado" es lo que decía el modelo: si el real queda cerca, está bien calibrado.</p></div>
+  <div class="kpis"><div class="kpi cut"><span>Combinadas</span><b class="num">${r(cDone)}</b><small>esperado ${ex(cDone)}</small></div>
+  <div class="kpi cut"><span>Selecciones de combinadas</span><b class="num">${pr(legs)}</b><small>esperado ${ex(legs)}</small></div>
+  <div class="kpi cut"><span>Pronósticos del día</span><b class="num">${pr(done)}</b><small>${r(done)} · esperado ${ex(done)}</small></div></div>`;
+  const dates=[...new Set([...CH.map(c=>c.date),...H.map(e=>e.date)])].sort().reverse();
+  h+=dates.map(d=>{
+    const cs=CH.filter(c=>c.date===d), rows=H.filter(e=>e.date===d);
+    const combos=cs.length?`<div class="combos">${cs.map(c=>{const sp=SPORTS.find(s=>s.k===c.sport);
+      return `<article class="combo cut"><div class="ch"><div><h3 style="font-size:15px">${sp?sp.name:c.sport} · ${TLBL[c.type]||c.type}</h3><p class="num">Chance ${pct(c.p)} · cuota mín. ${esc(c.fair)}</p></div><span class="badge ${resCls(c.result)}">${resTxt(c.result)}</span></div><ul class="legs">${c.legs.length?c.legs.map(l=>legLi(l,c.sport,l)).join(''):`<li class="pend"><span class="jj">${LOCK}</span><div><div class="gm">Selecciones visibles para suscriptores hasta que terminen los partidos</div></div><div class="lp"></div></li>`}</ul><div style="height:8px"></div></article>`;}).join('')}</div>`:'';
+    const list=rows.length?`<div class="hrows cut">${rows.map(e=>{const sp=SPORTS.find(s=>s.k===e.sport);
+      return `<div class="hrow"><span class="res ${resCls(e.result)}">${resTxt(e.result).toUpperCase()}</span><div class="g">${esc(e.game)}<small>${sp?sp.name:''} · Pronóstico: ${e.locked?LOCK+'solo suscriptores':esc(e.pick)+' ('+pct(e.p)+')'}</small></div><span class="sc num">${e.score?esc(e.score):'—'}</span>${e.review&&e.result===0?`<div class="rv">${esc(e.review)}</div>`:''}</div>`;}).join('')}</div>`:'';
+    return `<div class="day"><div class="day-h"><h3 class="num">${fmtDate(d)}</h3><span class="sub">${r(rows.filter(e=>e.result===1||e.result===0))} pronósticos acertados</span></div>${combos}${list}</div>`;
+  }).join('');
+  $('sec-hist').innerHTML=h;
+}
+
+/* ---------- navegación ---------- */
+const TABS=['combo','fut','mlb','nba','nfl','hist','how'];
+function show(t){
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===t)));
+  TABS.forEach(k=>$('sec-'+k).hidden=k!==t); store.set('tab',t);
+}
+function renderAll(){
+  $('gen').textContent=DATA.generated;
+  SPORTS.forEach(s=>$('n-'+s.tab).textContent=(DATA[s.k]||[]).length);
+  buildTicker(); SPORTS.forEach(buildSport); buildCombos(); buildSide(); buildHist();
+  document.querySelectorAll('[data-open="acct"]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();window.openAccount&&window.openAccount();}));
+}
+setData(DATA);
+document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>show(b.dataset.t)));
+renderAll();
+const hs=location.hash.slice(1);
+show(TABS.includes(hs)?hs:(TABS.includes(store.get('tab'))?store.get('tab'):'combo'));
+
+/* ---------- cuenta y suscripción (solo en el sitio público) ---------- */
+if(PUBLIC){
+  const SB_URL='https://nmaykdplyylzbihogjdv.supabase.co';
+  const SB_KEY='sb_publishable_wwlv6WXHNX-YBTzEknJ7Yw_pShtID0E';
+  const PAY_ID='357995576', PRICE=10;
+  const PUB_DATA=DATA;
+  let sb=null, ME=null, PROF=null, VIEW='login', polling=null;
+  const dlg=$('acct'), body=$('acctBody'), btn=$('acctBtn');
+  document.body.classList.add('pub');
+  btn.hidden=false;
+  const fmt=d=>new Date(d).toLocaleDateString('es-VE',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'America/Caracas'});
+  const active=()=>PROF&&PROF.paid_until&&new Date(PROF.paid_until)>new Date();
+  const say=(el,txt,kind)=>{el.innerHTML=txt?`<div class="msg ${kind||''}">${txt}</div>`:'';};
+
+  function paintBtn(){
+    if(!ME){btn.innerHTML='Entrar';return;}
+    btn.innerHTML=active()?`<span class="pro">PREMIUM</span>Mi cuenta`:'Activar suscripción';
+  }
+  window.openAccount=()=>{ render(); try{dlg.showModal();}catch(e){dlg.setAttribute('open','');} };
+  btn.addEventListener('click',window.openAccount);
+  $('acctClose').addEventListener('click',()=>dlg.close());
+  dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});
+
+  function render(){
+    if(!sb){body.innerHTML='<div class="msg">Cargando…</div>';return;}
+    if(!ME){
+      body.innerHTML=`<div class="seg" role="group"><button data-v="login" aria-pressed="${VIEW==='login'}">Iniciar sesión</button><button data-v="signup" aria-pressed="${VIEW==='signup'}">Crear cuenta</button></div>
+      <form id="authForm" class="acct-in" style="padding:0;border:0;background:none;gap:14px">
+        <div class="fld"><label for="em">Correo</label><input id="em" type="email" autocomplete="email" required></div>
+        <div class="fld"><label for="pw">Contraseña</label><input id="pw" type="password" minlength="6" autocomplete="${VIEW==='login'?'current-password':'new-password'}" required>${VIEW==='signup'?'<small>Mínimo 6 caracteres.</small>':''}</div>
+        <div id="authMsg"></div>
+        <button class="btn-v cut" type="submit">${VIEW==='login'?'Entrar':'Crear cuenta'}</button>
+      </form>
+      <p class="note">La suscripción cuesta <b style="color:var(--ink)">${PRICE} USDT al mes</b> y se paga con Binance Pay. Primero crea tu cuenta; después te mostramos cómo pagar.</p>`;
+      body.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{VIEW=b.dataset.v;render();});
+      $('authForm').onsubmit=async e=>{
+        e.preventDefault(); const m=$('authMsg'), sub=e.submitter||e.target.querySelector('button[type=submit]');
+        sub.disabled=true; say(m,'Un momento…');
+        const email=$('em').value.trim(), password=$('pw').value;
+        const r=VIEW==='login'?await sb.auth.signInWithPassword({email,password}):await sb.auth.signUp({email,password});
+        sub.disabled=false;
+        if(r.error){ const t=r.error.message||'';
+          say(m, /Invalid login/i.test(t)?'Correo o contraseña incorrectos.':/already registered|already exists/i.test(t)?'Ese correo ya tiene cuenta. Inicia sesión.':/Password should/i.test(t)?'La contraseña debe tener al menos 6 caracteres.':'No se pudo: '+esc(t),'err'); return; }
+        if(!r.data.session){ say(m,'Cuenta creada. Revisa tu correo para confirmarla y luego inicia sesión.','ok'); return; }
+      };
+      return;
+    }
+    const on=active();
+    body.innerHTML=`<div class="status"><span>${esc(ME.email)}</span>${on?`<b class="on">ACTIVA HASTA ${fmt(PROF.paid_until)}</b>`:'<b class="off">SIN SUSCRIPCIÓN</b>'}</div>
+      <ol class="steps">
+        <li><b>Tu Binance ID</b><p>Es el número de tu perfil en Binance: toca tu foto de perfil y copia el <b>ID</b>. Lo usamos para reconocer tu pago.</p>
+          <div class="row2 fld"><input id="bid" inputmode="numeric" placeholder="Ej. 123456789" value="${esc(PROF&&PROF.binance_id||'')}" aria-label="Tu Binance ID"><button class="btn-g" id="bidSave">Guardar</button></div><div id="bidMsg"></div></li>
+        <li><b>Envía ${PRICE} USDT</b><p>En la app de Binance entra a <b>Pay → Enviar</b>, elige <b>Pay ID</b> y envía <b>${PRICE} USDT</b> (o ${PRICE*2}, ${PRICE*3}… para varios meses) a:</p>
+          <div class="payid"><code>${PAY_ID}</code><button class="btn-g" id="copyPay">Copiar</button></div>
+          <p style="font-size:12.5px;color:var(--muted)">Cada ${PRICE} USDT suman 30 días. Envía desde la misma cuenta cuyo ID guardaste.</p></li>
+        <li><b>Confirma tu pago</b><p>Cuando Binance diga que el pago se completó, toca el botón. La activación es automática.</p>
+          <button class="btn-v cut" id="verify">Ya pagué, verificar</button><div id="payMsg"></div></li>
+      </ol>
+      <div class="row2" style="justify-content:space-between"><span class="note">¿Problemas? Escribe a <b style="color:var(--ink)">@lgsusoriginal</b> en Instagram.</span><button class="btn-g" id="logout">Cerrar sesión</button></div>`;
+    $('copyPay').onclick=async()=>{try{await navigator.clipboard.writeText(PAY_ID);$('copyPay').textContent='Copiado';}catch(e){$('copyPay').textContent=PAY_ID;}};
+    $('logout').onclick=async()=>{await sb.auth.signOut();dlg.close();};
+    $('bidSave').onclick=async()=>{
+      const v=$('bid').value.replace(/\D/g,''), m=$('bidMsg');
+      if(v.length<5||v.length>15){say(m,'Escribe solo los números de tu Binance ID.','err');return;}
+      const {error}=await sb.from('profiles').update({binance_id:v}).eq('id',ME.id);
+      if(error){say(m,error.code==='23505'?'Ese Binance ID ya está registrado en otra cuenta.':'No se pudo guardar: '+esc(error.message),'err');return;}
+      PROF.binance_id=v; say(m,'Guardado.','ok');
+    };
+    $('verify').onclick=()=>verify(true);
+  }
+
+  async function verify(fromClick){
+    const m=$('payMsg'), b=$('verify');
+    if(!PROF||!PROF.binance_id){ if(m) say(m,'Primero guarda tu Binance ID (paso 1).','err'); return; }
+    if(b) b.disabled=true; if(m&&fromClick) say(m,'Buscando tu pago en Binance…');
+    let r;
+    try{ r=await sb.functions.invoke('verificar-pago',{method:'POST',body:{},region:'sa-east-1'}); }catch(e){ r={error:e}; }
+    if(b) b.disabled=false;
+    const d=r&&r.data;
+    if(r.error||!d){ if(m) say(m,'No pudimos consultar Binance ahora. Intenta de nuevo en un minuto.','err'); return; }
+    if(!d.ok){ if(m) say(m,esc(d.msg||'No se pudo verificar.'),'err'); return; }
+    if(d.credited>0){
+      clearInterval(polling); polling=null;
+      await loadProfile(); await loadPremium(); render();
+      say($('payMsg'),`¡Pago recibido! Tu suscripción está activa hasta el ${fmt(PROF.paid_until)}.`,'ok');
+      return;
+    }
+    if(d.short>0){ if(m) say(m,`Recibimos un pago menor a ${PRICE} USDT. Envía el monto completo para activar.`,'err'); return; }
+    if(fromClick){
+      if(m) say(m,'Todavía no vemos tu pago. Seguimos revisando cada 15 segundos durante 5 minutos; puedes dejar esta ventana abierta.');
+      clearInterval(polling); let n=0;
+      polling=setInterval(()=>{ if(++n>20){clearInterval(polling);polling=null;const mm=$('payMsg'); if(mm) say(mm,'No encontramos el pago. Revisa que lo enviaste en USDT al Pay ID correcto y desde la cuenta cuyo ID guardaste, y vuelve a tocar el botón.','err');return;} verify(false); },15000);
+    }
+  }
+
+  async function loadProfile(){
+    if(!ME){PROF=null;return;}
+    const {data}=await sb.from('profiles').select('binance_id,paid_until').eq('id',ME.id).maybeSingle();
+    PROF=data||{binance_id:null,paid_until:null};
+  }
+  async function loadPremium(){
+    if(!active()){ if(DATA!==PUB_DATA){setData(PUB_DATA);renderAll();} paintBtn(); return; }
+    const {data}=await sb.from('premium').select('data').eq('id','hoy').maybeSingle();
+    if(data&&data.data){ const d=data.data; d.public=false; setData(d); renderAll(); }
+    paintBtn();
+  }
+  async function onSession(session){
+    ME=session?session.user:null;
+    await loadProfile(); await loadPremium(); paintBtn();
+    if(dlg.open) render();
+  }
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+  s.onload=async()=>{
+    sb=window.supabase.createClient(SB_URL,SB_KEY);
+    const {data}=await sb.auth.getSession(); await onSession(data.session);
+    sb.auth.onAuthStateChange((ev,session)=>{ if(ev==='SIGNED_IN'||ev==='SIGNED_OUT') setTimeout(()=>onSession(session),0); });
+    if(dlg.open) render();
+  };
+  s.onerror=()=>{ btn.textContent='Sin conexión'; };
+  document.head.appendChild(s);
+}
+</script>
