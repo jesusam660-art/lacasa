@@ -266,6 +266,10 @@ dialog.acct::backdrop{background:rgba(4,3,8,.78);backdrop-filter:blur(4px)}
 .payid code{font-family:var(--display);font-size:20px;font-weight:800;letter-spacing:.08em;color:var(--v-hi)}
 .row2{display:flex;gap:8px;flex-wrap:wrap}
 .row2 input{flex:1;min-width:0}
+details.renew{background:var(--panel-2);padding:0}
+details.renew>summary{cursor:pointer;padding:12px 14px;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+details.renew[open]>summary{border-bottom:1px solid var(--line)}
+details.renew .steps{padding:12px}
 
 /* ---------- pie de página ---------- */
 .foot{border-top:1px solid var(--line);background:linear-gradient(180deg,rgba(17,14,28,.6),#050409);position:relative}
@@ -675,7 +679,7 @@ if(PUBLIC){
   const SB_KEY='sb_publishable_wwlv6WXHNX-YBTzEknJ7Yw_pShtID0E';
   const PAY_ID='357995576', PRICE=10;
   const PUB_DATA=DATA;
-  let sb=null, ME=null, PROF=null, VIEW='login', polling=null;
+  let sb=null, ME=null, PROF=null, VIEW='login', polling=null, PREM=false;
   const dlg=$('acct'), body=$('acctBody'), btn=$('acctBtn');
   document.body.classList.add('pub');
   btn.hidden=false;
@@ -717,7 +721,11 @@ if(PUBLIC){
       return;
     }
     const on=active();
+    const okBox=on?(PREM?`<div class="msg ok">Tienes acceso completo a todos los pronósticos, las dos seguras y el análisis de cada partido.</div><button class="btn-v cut" id="goApp">Ver los pronósticos</button>`
+      :`<div class="msg">Tu suscripción está activa. Los pronósticos de hoy todavía no se han publicado; aparecen aquí apenas se carguen en la mañana.</div><button class="btn-v cut" id="goApp">Volver a la página</button>`):'';
     body.innerHTML=`<div class="status"><span>${esc(ME.email)}</span>${on?`<b class="on">ACTIVA HASTA ${fmt(PROF.paid_until)}</b>`:'<b class="off">SIN SUSCRIPCIÓN</b>'}</div>
+      ${okBox}
+      ${on?'<details class="renew"><summary>Renovar o sumar meses</summary>':''}
       <ol class="steps">
         <li><b>Tu Binance ID</b><p>Es el número de tu perfil en Binance: toca tu foto de perfil y copia el <b>ID</b>. Lo usamos para reconocer tu pago.</p>
           <div class="row2 fld"><input id="bid" inputmode="numeric" placeholder="Ej. 123456789" value="${esc(PROF&&PROF.binance_id||'')}" aria-label="Tu Binance ID"><button class="btn-g" id="bidSave">Guardar</button></div><div id="bidMsg"></div></li>
@@ -726,8 +734,9 @@ if(PUBLIC){
           <p style="font-size:12.5px;color:var(--muted)">Cada ${PRICE} USDT suman 30 días. Envía desde la misma cuenta cuyo ID guardaste.</p></li>
         <li><b>Confirma tu pago</b><p>Cuando Binance diga que el pago se completó, toca el botón. La activación es automática.</p>
           <button class="btn-v cut" id="verify">Ya pagué, verificar</button><div id="payMsg"></div></li>
-      </ol>
+      </ol>${on?'</details>':''}
       <div class="row2" style="justify-content:space-between"><span class="note">¿Problemas? Escribe a <b style="color:var(--ink)">@lgsusoriginal</b> en Instagram.</span><button class="btn-g" id="logout">Cerrar sesión</button></div>`;
+    if($('goApp')) $('goApp').onclick=()=>{dlg.close();show('combo');window.scrollTo({top:0,behavior:'smooth'});};
     $('copyPay').onclick=async()=>{try{await navigator.clipboard.writeText(PAY_ID);$('copyPay').textContent='Copiado';}catch(e){$('copyPay').textContent=PAY_ID;}};
     $('logout').onclick=async()=>{await sb.auth.signOut();dlg.close();};
     $('bidSave').onclick=async()=>{
@@ -753,7 +762,7 @@ if(PUBLIC){
     if(d.credited>0){
       clearInterval(polling); polling=null;
       await loadProfile(); await loadPremium(); render();
-      say($('payMsg'),`¡Pago recibido! Tu suscripción está activa hasta el ${fmt(PROF.paid_until)}.`,'ok');
+      body.insertAdjacentHTML('afterbegin',`<div class="msg ok">¡Pago recibido! Tu suscripción está activa hasta el ${fmt(PROF.paid_until)}.</div>`);
       return;
     }
     if(d.short>0){ if(m) say(m,`Recibimos un pago menor a ${PRICE} USDT. Envía el monto completo para activar.`,'err'); return; }
@@ -770,9 +779,9 @@ if(PUBLIC){
     PROF=data||{binance_id:null,paid_until:null};
   }
   async function loadPremium(){
-    if(!active()){ if(DATA!==PUB_DATA){setData(PUB_DATA);renderAll();} paintBtn(); return; }
+    if(!active()){ PREM=false; if(DATA!==PUB_DATA){setData(PUB_DATA);renderAll();} paintBtn(); return; }
     const {data}=await sb.from('premium').select('data').eq('id','hoy').maybeSingle();
-    if(data&&data.data){ const d=data.data; d.public=false; setData(d); renderAll(); }
+    if(data&&data.data){ const d=data.data; d.public=false; PREM=true; setData(d); renderAll(); } else PREM=false;
     paintBtn();
   }
   async function onSession(session){
