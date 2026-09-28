@@ -206,6 +206,20 @@ details.m>summary:hover,details.m[open]>summary{background:var(--panel-2)}
 .kpi span{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
 .kpi b{font-family:var(--display);font-weight:800;font-size:26px;color:var(--ink)}
 .kpi small{font-size:12px;color:var(--muted)}
+.day-box{background:var(--panel);border:1px solid var(--line)}
+.day-box>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 16px}
+.day-box>summary::-webkit-details-marker{display:none}
+.day-box>summary:hover{background:var(--panel-2)}
+.day-box>summary h3{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.16em;margin:0}
+.day-box .dtag{font-family:var(--display);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:4px 8px;background:var(--panel-3);color:var(--muted)}
+.day-box .dtag.now{background:var(--v-soft);color:var(--v-hi)}
+.day-box .dstats{display:flex;align-items:center;gap:8px;margin-left:auto;font-size:13px}
+.day-box .dstats b.ok{color:var(--win)} .day-box .dstats b.no{color:var(--loss)}
+.day-box .dstats .sub{color:var(--muted)} .day-box .dstats .sep{color:var(--line)}
+.day-box .chev{color:var(--muted);transition:transform .2s;font-size:18px;line-height:1}
+.day-box[open] .chev{transform:rotate(90deg)}
+.day-box>.day{padding:0 16px 16px}
+@media (max-width:560px){.day-box .dstats{margin-left:0;width:100%}}
 .day{display:flex;flex-direction:column;gap:12px}
 .day-h{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .day-h h3{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.16em}
@@ -726,7 +740,16 @@ function buildHist(){
       return `<article class="combo cut"><div class="ch"><div><h3 style="font-size:15px">${sp?sp.name:c.sport} · ${TLBL[c.type]||c.type}</h3><p class="num">Chance ${pct(c.p)} · cuota mín. ${esc(c.fair)}</p></div><span class="badge ${resCls(c.result)}">${resTxt(c.result)}</span></div><ul class="legs">${c.legs.length?c.legs.map(l=>legLi(l,c.sport,l)).join(''):`<li class="pend"><span class="jj">${LOCK}</span><div><div class="gm">Selecciones visibles para suscriptores hasta que terminen los partidos</div></div><div class="lp"></div></li>`}</ul><div style="height:8px"></div></article>`;}).join('')}</div>`:'';
     const list=rows.length?`<div class="hrows cut">${rows.map(e=>{const sp=SPORTS.find(s=>s.k===e.sport);
       return `<div class="hrow"><span class="res ${resCls(e.result)}">${resTxt(e.result).toUpperCase()}</span><div class="g">${esc(e.game)}<small>${sp?sp.name:''} · Pronóstico: ${e.locked?LOCK+'solo suscriptores':esc(e.pick)+' ('+pct(e.p)+')'}</small></div><span class="sc num">${e.score?esc(e.score):'—'}</span>${e.review&&e.result===0?`<div class="rv">${esc(e.review)}</div>`:''}</div>`;}).join('')}</div>`:'';
-    return `<div class="day"><div class="day-h"><h3 class="num">${fmtDate(d)}</h3><span class="sub">${r(rows.filter(e=>e.result===1||e.result===0))} pronósticos acertados</span></div>${combos}${list}</div>`;
+    const graded=rows.filter(e=>e.result===1||e.result===0), cG=cs.filter(c=>c.result===1||c.result===0);
+    const cOk=cs.filter(c=>c.result===1).length, cNo=cs.filter(c=>c.result===0).length;
+    const pend=cs.some(c=>c.result!==1&&c.result!==0&&c.result!=='void')||rows.some(e=>e.result!==1&&e.result!==0&&e.result!=='void');
+    const isToday=d===(DATA.date||'');
+    const tag=isToday?'Hoy · en curso':(pend?'Con partidos pendientes':'Día cerrado');
+    const inner=`${combos}${list}`;
+    // Solo el día de hoy queda abierto; los días anteriores se guardan en una pestaña plegable
+    return `<details class="day-box"${isToday?' open':''}><summary class="day-sum"><h3 class="num">${fmtDate(d)}</h3><span class="dtag${isToday?' now':''}">${tag}</span>
+      <span class="dstats"><b class="ok">${cOk} ✓</b><b class="no">${cNo} ✗</b><span class="sub">combinadas</span><span class="sep">·</span><span class="sub">${r(graded)} pronósticos</span></span><span class="chev" aria-hidden="true">›</span></summary>
+      <div class="day">${inner}</div></details>`;
   }).join('');
   $('sec-hist').innerHTML=h;
 }
