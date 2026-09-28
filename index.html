@@ -929,6 +929,12 @@ if(PUBLIC){
       // si la versión premium no trae alineaciones, se usan las de la versión pública
       const pl={}; (PUB_DATA.futbol||[]).forEach(g=>{if(g.lineups) pl[g.id]=g.lineups;});
       (d.futbol||[]).forEach(g=>{if(!g.lineups&&pl[g.id]) g.lineups=pl[g.id];});
+      // si la versión pública tiene resultados más nuevos, se usan esos
+      const done=x=>x&&(x.result===1||x.result===0||x.result==='void');
+      const ph={}; (PUB_DATA.history||[]).forEach(e=>{if(done(e)) ph[e.id]=e;});
+      d.history=(d.history||[]).map(e=>!done(e)&&ph[e.id]?Object.assign({},e,ph[e.id],{pick:e.pick,p:e.p,pick_rule:e.pick_rule,locked:false}):e);
+      const ck=c=>c.date+'|'+c.sport+'|'+c.type, pc={}; (PUB_DATA.combo_history||[]).forEach(c=>{if(done(c)) pc[ck(c)]=c;});
+      d.combo_history=(d.combo_history||[]).map(c=>!done(c)&&pc[ck(c)]?Object.assign({},c,{result:pc[ck(c)].result,legs:pc[ck(c)].legs.length?pc[ck(c)].legs:c.legs}):c);
       const open=[...document.querySelectorAll('details.m[open]')].map(x=>x.id);
       setData(d); renderAll();
       open.forEach(id=>{const x=document.getElementById(id); if(x) x.open=true;});
