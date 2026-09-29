@@ -59,6 +59,13 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;backgroun
 .logo svg{width:40px;height:auto;flex:none;filter:drop-shadow(0 0 14px var(--v-glow))}
 .wordmark{font-family:var(--display);font-weight:900;font-size:30px;letter-spacing:.16em;line-height:1;color:var(--ink)}
 .wordmark b{color:var(--v);font-weight:900}
+.wm{display:flex;flex-direction:column;gap:6px}
+.tagline{font-family:var(--display);font-size:10.5px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--v-hi)}
+.seal{display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 18px;padding:10px 14px;background:linear-gradient(120deg,rgba(133,108,255,.2),rgba(133,108,255,.04));border:1px solid rgba(133,108,255,.4);font-size:13.5px;color:var(--ink-2);text-decoration:none}
+.seal b{font-family:var(--display);font-size:18px;color:var(--ink);letter-spacing:.02em}
+.seal .ck{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--v);color:#0B0718;font-weight:900;font-size:13px}
+.seal u{text-decoration:none;color:var(--v-hi);font-weight:600}
+@media (max-width:560px){.tagline{font-size:8.5px;letter-spacing:.16em}}
 .upd{text-align:right;font-size:12px;color:var(--muted);line-height:1.35}
 .upd strong{display:block;color:var(--ink-2);font-weight:600;font-size:13px}
 nav.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:12px}
@@ -191,6 +198,15 @@ details.m>summary:hover,details.m[open]>summary{background:var(--panel-2)}
 .sporthd{display:flex;align-items:baseline;gap:10px}
 .sporthd h3{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.14em;text-transform:uppercase}
 .sporthd span{color:var(--muted);font-size:13px}
+.terms{font-size:13.5px;color:var(--ink-2);line-height:1.55}
+.terms h3{font-family:var(--display);font-size:14px;letter-spacing:.06em;color:var(--ink);margin:0 0 6px}
+.terms h4{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--v-hi);margin:16px 0 4px}
+.terms p{margin:0 0 8px}
+.terms-box{max-height:220px;overflow:auto;background:var(--bg);border:1px solid var(--line);padding:12px 14px}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--ink-2);cursor:pointer}
+.chk input{width:18px;height:18px;accent-color:var(--v);margin-top:1px;flex:none}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:480px){.grid2{grid-template-columns:1fr}}
 .note{margin:0;color:var(--muted);font-size:13.5px}
 .info{margin:0;background:var(--panel);padding:14px 16px;font-size:14px;color:var(--ink-2);border-left:3px solid var(--v)}
 .info b{color:var(--ink)}
@@ -415,7 +431,7 @@ details.renew .steps{padding:12px}
     <div class="brand">
       <a class="logo" href="#combo" aria-label="LA CASA, inicio">
         <svg viewBox="0 0 506 536" aria-hidden="true"><path d="M0 218L218 0L506 288V536H335V126L173 288V536H0Z" fill="#856CFF"/></svg>
-        <span class="wordmark">LA <b>CASA</b></span>
+        <span class="wm"><span class="wordmark">LA <b>CASA</b></span><span class="tagline">Estadística pura, sin humo</span></span>
       </a>
       <div class="brand-r">
         <div class="upd">Actualizado<strong id="gen"></strong></div>
@@ -487,12 +503,69 @@ details.renew .steps{padding:12px}
       </div>
     </div>
     <div class="foot-bar">
-      <p class="credit">Creado por <a href="https://www.instagram.com/lgsusoriginal/" target="_blank" rel="noopener">@lgsusoriginal</a></p>
+      <p class="credit"><a href="#" id="termsLink">Términos y condiciones</a> · Creado por <a href="https://www.instagram.com/lgsusoriginal/" target="_blank" rel="noopener">@lgsusoriginal</a></p>
       <p class="legal">© 2026 LA CASA · Contenido informativo para mayores de 18 años. Ningún pronóstico es seguro: apuesta con responsabilidad y solo lo que estés dispuesto a perder.</p>
     </div>
   </div>
 </footer>
 
+<template id="tpl-terms"><h3>Términos y condiciones de uso de LA CASA</h3>
+<p><i>Última actualización: 28 de septiembre de 2026.</i></p>
+<p>Lee con atención estos términos antes de crear tu cuenta. Al marcar la casilla "Acepto los términos y condiciones" y registrarte, declaras que los leíste, que los entiendes y que estás de acuerdo con todo su contenido. Si no estás de acuerdo con alguna parte, no crees una cuenta ni uses el servicio.</p>
+
+<h4>1. Qué es LA CASA</h4>
+<p>LA CASA es un <b>programa de análisis estadístico deportivo</b>. Publica probabilidades calculadas a partir de datos públicos (resultados anteriores, rendimiento de equipos y jugadores, noticias, lesiones y contexto de cada partido) y las presenta de forma ordenada para fines <b>informativos y de entretenimiento</b>.</p>
+<p>LA CASA <b>no es una casa de apuestas</b>: no recibe apuestas, no paga premios, no maneja dinero de apuestas de nadie y no tiene relación comercial con ninguna casa de apuestas. Tampoco usa cuotas de casas de apuestas para calcular sus números.</p>
+
+<h4>2. LA CASA no predice el futuro</h4>
+<p>Ningún modelo estadístico puede saber qué va a pasar en un partido. Los porcentajes que ves son <b>estimaciones de probabilidad</b>, no certezas. Un pronóstico con 70% de probabilidad también falla 3 de cada 10 veces, y eso es normal. Las palabras "Segura" o "Arriesgada" describen solo el nivel de probabilidad calculado, <b>nunca una garantía</b> de resultado.</p>
+<p>Los resultados pasados que se muestran en el historial <b>no garantizan resultados futuros</b>. Puede haber rachas de fallos, días sin aciertos y errores en los datos de origen (por ejemplo, alineaciones que cambian a última hora, lesiones no anunciadas o partidos suspendidos).</p>
+
+<h4>3. Tus decisiones son tu responsabilidad</h4>
+<p>Todo lo que decidas hacer con la información de LA CASA es <b>decisión tuya y bajo tu propio riesgo</b>. Si decides apostar en cualquier casa de apuestas, lo haces de forma libre y personal. LA CASA, su creador y sus colaboradores <b>no se hacen responsables</b> por pérdidas de dinero, deudas, daños o perjuicios de ningún tipo que resulten directa o indirectamente del uso de la información publicada.</p>
+<p>Te recomendamos no apostar dinero que necesites para tus gastos, no intentar recuperar pérdidas apostando más y pedir ayuda si sientes que el juego se está volviendo un problema para ti o tu familia.</p>
+
+<h4>4. Edad mínima</h4>
+<p>Debes tener <b>18 años o más</b> (o la mayoría de edad de tu país, si es mayor) para crear una cuenta. Al registrarte confirmas que cumples con esta edad. Si descubrimos que una cuenta pertenece a un menor de edad, será cerrada sin reembolso.</p>
+
+<h4>5. Tu cuenta</h4>
+<p>Para suscribirte debes dar datos verdaderos: nombre y apellido, nombre de usuario, correo, ubicación y número de teléfono. Tu cuenta es <b>personal e intransferible</b>. Eres responsable de cuidar tu contraseña y de todo lo que se haga desde tu cuenta.</p>
+<p>Está prohibido compartir tu cuenta, revender, copiar, publicar o redistribuir el contenido pagado (pronósticos, combinadas o análisis) en grupos, redes sociales, canales o cualquier otro medio. Si lo haces, podemos suspender o cerrar tu cuenta sin reembolso.</p>
+
+<h4>6. Planes y pagos</h4>
+<p>LA CASA ofrece planes de suscripción con distinto contenido y duración, que se muestran con su precio antes de pagar. Los pagos se hacen únicamente por <b>Binance Pay</b>, en USDT. El acceso se activa cuando el pago queda verificado y dura el tiempo del plan que compraste, contado desde la activación.</p>
+<p>Por tratarse de contenido digital que se entrega de inmediato, <b>los pagos no son reembolsables</b>, salvo en los casos en que la ley aplicable exija lo contrario o cuando exista un error comprobable de cobro por parte de LA CASA. La suscripción no se renueva sola: para seguir teniendo acceso debes pagar de nuevo.</p>
+<p>Los precios y el contenido de los planes pueden cambiar. Los cambios no afectan el tiempo que ya pagaste.</p>
+
+<h4>7. Disponibilidad del servicio</h4>
+<p>Hacemos lo posible para publicar los pronósticos todos los días, pero puede haber retrasos, días con pocos partidos, deportes fuera de temporada, errores técnicos o interrupciones. Estas situaciones no dan derecho a reembolso. Podemos agregar, cambiar o quitar deportes, ligas, secciones o funciones cuando lo consideremos necesario para mejorar el servicio.</p>
+
+<h4>8. Tus datos personales</h4>
+<p>Guardamos los datos que nos das al registrarte (nombre y apellido, usuario, correo, ubicación y teléfono) y los datos de tus pagos, <b>solo para</b> administrar tu cuenta, verificar tus pagos, darte soporte y avisarte de cambios importantes del servicio. <b>No vendemos ni compartimos tus datos</b> con terceros, salvo con los proveedores técnicos necesarios para que la página funcione (alojamiento, base de datos y verificación de pagos) o cuando una autoridad competente lo exija por ley.</p>
+<p>Puedes pedir que corrijamos o borremos tus datos escribiéndonos por Instagram. Si borras tu cuenta, pierdes el acceso y el tiempo de suscripción que te quede.</p>
+
+<h4>9. Propiedad del contenido</h4>
+<p>El diseño, la marca LA CASA, el logo, los textos, el modelo estadístico y los pronósticos publicados son propiedad de su creador. No puedes copiarlos, modificarlos ni usarlos con fines comerciales sin permiso por escrito.</p>
+
+<h4>10. Suspensión de cuentas</h4>
+<p>Podemos suspender o cerrar, sin reembolso, cualquier cuenta que incumpla estos términos, que dé datos falsos, que intente acceder de forma no autorizada a la página o a sus sistemas, o que intente engañar el sistema de pagos.</p>
+
+<h4>11. Límite de responsabilidad</h4>
+<p>LA CASA se ofrece "tal como está". En la medida en que la ley lo permita, la responsabilidad total de LA CASA frente a ti, por cualquier motivo, nunca será mayor que lo que pagaste por tu suscripción en el último mes.</p>
+
+<h4>12. Cambios a estos términos</h4>
+<p>Podemos actualizar estos términos. Cuando haya cambios importantes lo avisaremos en la página. Si sigues usando LA CASA después de un cambio, se entiende que aceptas la nueva versión.</p>
+
+<h4>13. Contacto</h4>
+<p>Para dudas, soporte o solicitudes sobre tus datos, escríbenos por Instagram a <b>@lgsusoriginal</b>.</p>
+<p><b>Recuerda: LA CASA es estadística pura, sin humo. Informa, no adivina. Ningún pronóstico es seguro.</b></p>
+</template>
+<dialog class="acct" id="termsDlg" aria-labelledby="termsTitle">
+  <div class="acct-in cut">
+    <div class="acct-top"><h2 id="termsTitle">Términos y condiciones</h2><button class="x" id="termsClose" aria-label="Cerrar">×</button></div>
+    <div class="terms" id="termsBody"></div>
+  </div>
+</dialog>
 <dialog class="acct" id="acct" aria-labelledby="acctTitle">
   <div class="acct-in cut">
     <div class="acct-top"><h2 id="acctTitle">Tu cuenta</h2><button class="x" id="acctClose" aria-label="Cerrar">×</button></div>
@@ -733,7 +806,9 @@ function comboCard(sport,ct,c,hc){
     <p class="note" style="padding:0 18px 16px">Se gana más o menos 1 de cada ${Math.round(D)} veces. Con 100 apostados, pide que pague al menos ${Math.round(100*D).toLocaleString('es-VE')}.</p></article>`;
 }
 function buildCombos(){
-  let h=`<div class="h-sec"><div><div class="kick">Del día</div><h2>Combinadas</h2></div><p>Dos combinadas por deporte con partidos distintos. Se llama <b>Segura</b> si tiene 55% o más de chance y <b>Arriesgada</b> si tiene menos.</p></div>`;
+  const _d=H.filter(e=>e.result===1||e.result===0), _ok=_d.filter(e=>e.result===1).length;
+  const seal=_d.length>=10?`<a class="seal cut" href="#hist" onclick="show('hist');return false;"><span class="ck">✓</span><b class="num">${pct0(_ok/_d.length)}</b> de aciertos (${_ok}/${_d.length}) · <u>historial público y verificable</u></a>`:'';
+  let h=seal+`<div class="h-sec"><div><div class="kick">Del día</div><h2>Combinadas</h2></div><p>Dos combinadas por deporte con partidos distintos. Se llama <b>Segura</b> si tiene 55% o más de chance y <b>Arriesgada</b> si tiene menos.</p></div>`;
   SPORTS.forEach(s=>{
     const cs=(DATA.combos||{})[s.k]||{}, games=(DATA[s.k]||[]).length;
     let body;
@@ -762,7 +837,7 @@ function buildSide(){
     <div class="mini"><div class="row"><span>Combinadas acertadas</span><b class="num">${cDone.filter(c=>c.result===1).length}/${cDone.length}</b></div></div></div>`;
   const today=[]; SPORTS.forEach(s=>CT.forEach(ct=>{const c=((DATA.combos||{})[s.k]||{})[ct.k]; if(c) today.push({s,ct,c,hc:histCombo(s.k,ct.k,DATA.date)});}));
   if(today.length) h+=`<div class="card cut"><h3>Combinadas de hoy</h3><div class="mini">${today.map(t=>`<div class="row"><span>${t.s.name} · ${cname(t.ct.k,t.c.p)} <span class="num" style="color:var(--muted)">${pct(t.c.p)}</span></span><b class="${resCls(t.hc?t.hc.result:null)}">${resTxt(t.hc?t.hc.result:null).toUpperCase()}</b></div>`).join('')}</div></div>`;
-  h+=`<div class="brandcard cut"><svg viewBox="0 0 506 536" aria-hidden="true"><path d="M0 218L218 0L506 288V536H335V126L173 288V536H0Z" fill="#856CFF"/></svg><p>Pronósticos hechos solo con estadísticas, noticias y contexto. Nunca con cuotas de casas de apuestas.</p></div>`;
+  h+=`<div class="brandcard cut"><svg viewBox="0 0 506 536" aria-hidden="true"><path d="M0 218L218 0L506 288V536H335V126L173 288V536H0Z" fill="#856CFF"/></svg><p><b style="color:var(--ink);letter-spacing:.08em">ESTADÍSTICA PURA, SIN HUMO.</b><br>Pronósticos hechos solo con estadísticas, noticias y contexto. Nunca con cuotas de casas de apuestas.</p></div>`;
   $('side').innerHTML=h;
 }
 
@@ -818,6 +893,9 @@ const hs=location.hash.slice(1);
 show(TABS.includes(hs)?hs:(TABS.includes(store.get('tab'))?store.get('tab'):'combo'));
 
 /* ---------- cuenta y suscripción (solo en el sitio público) ---------- */
+(function(){const d=$('termsDlg'),b=$('termsBody'),l=$('termsLink'); if(!d||!l) return;
+  l.addEventListener('click',e=>{e.preventDefault(); b.innerHTML=$('tpl-terms').innerHTML; try{d.showModal();}catch(_){d.setAttribute('open','');}});
+  $('termsClose').addEventListener('click',()=>d.close()); d.addEventListener('click',e=>{if(e.target===d)d.close();});})();
 if(PUBLIC){
   const SB_URL='https://nmaykdplyylzbihogjdv.supabase.co';
   const SB_KEY='sb_publishable_wwlv6WXHNX-YBTzEknJ7Yw_pShtID0E';
@@ -843,24 +921,39 @@ if(PUBLIC){
   function render(){
     if(!sb){body.innerHTML='<div class="msg">Cargando…</div>';return;}
     if(!ME){
-      body.innerHTML=`<div class="seg" role="group"><button data-v="login" aria-pressed="${VIEW==='login'}">Iniciar sesión</button><button data-v="signup" aria-pressed="${VIEW==='signup'}">Crear cuenta</button></div>
+      const SU=VIEW==='signup';
+      body.innerHTML=`<div class="seg" role="group"><button data-v="login" aria-pressed="${!SU}">Iniciar sesión</button><button data-v="signup" aria-pressed="${SU}">Crear cuenta</button></div>
       <form id="authForm" class="acct-in" style="padding:0;border:0;background:none;gap:14px">
+        ${SU?`<div class="grid2"><div class="fld"><label for="fn">Nombre</label><input id="fn" autocomplete="given-name" required maxlength="40"></div>
+        <div class="fld"><label for="ln">Apellido</label><input id="ln" autocomplete="family-name" required maxlength="40"></div></div>
+        <div class="fld"><label for="un">Usuario</label><input id="un" autocomplete="username" required minlength="3" maxlength="20" pattern="[A-Za-z0-9_.]+" placeholder="Ej. jesus_10"><small>Solo letras, números, punto y guion bajo.</small></div>`:''}
         <div class="fld"><label for="em">Correo</label><input id="em" type="email" autocomplete="email" required></div>
-        <div class="fld"><label for="pw">Contraseña</label><input id="pw" type="password" minlength="6" autocomplete="${VIEW==='login'?'current-password':'new-password'}" required>${VIEW==='signup'?'<small>Mínimo 6 caracteres.</small>':''}</div>
+        ${SU?`<div class="grid2"><div class="fld"><label for="loc">Ubicación</label><input id="loc" autocomplete="address-level2" required maxlength="60" placeholder="Ciudad, país"></div>
+        <div class="fld"><label for="tel">Teléfono</label><input id="tel" type="tel" autocomplete="tel" required maxlength="20" placeholder="+58 412 1234567"></div></div>`:''}
+        <div class="fld"><label for="pw">Contraseña</label><input id="pw" type="password" minlength="8" autocomplete="${SU?'new-password':'current-password'}" required>${SU?'<small>Mínimo 8 caracteres.</small>':''}</div>
+        ${SU?`<div class="fld"><label>Términos y condiciones</label><div class="terms terms-box" tabindex="0">${$('tpl-terms').innerHTML}</div></div>
+        <label class="chk"><input type="checkbox" id="tos" required><span>Leí y <b style="color:var(--ink)">acepto los términos y condiciones</b>. Entiendo que LA CASA es solo un programa de estadísticas, que no predice el futuro y que soy mayor de 18 años.</span></label>`:''}
         <div id="authMsg"></div>
-        <button class="btn-v cut" type="submit">${VIEW==='login'?'Entrar':'Crear cuenta'}</button>
+        <button class="btn-v cut" type="submit">${SU?'Siguiente':'Entrar'}</button>
       </form>
-      <p class="note">La suscripción cuesta <b style="color:var(--ink)">${PRICE} USDT al mes</b> y se paga con Binance Pay. Primero crea tu cuenta; después te mostramos cómo pagar.</p>`;
+      ${SU?'':'<p class="note">¿No tienes cuenta? Toca <b style="color:var(--ink)">Crear cuenta</b>. Después del registro eliges tu plan y pagas con Binance.</p>'}`;
       body.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{VIEW=b.dataset.v;render();});
       $('authForm').onsubmit=async e=>{
         e.preventDefault(); const m=$('authMsg'), sub=e.submitter||e.target.querySelector('button[type=submit]');
-        sub.disabled=true; say(m,'Un momento…');
         const email=$('em').value.trim(), password=$('pw').value;
-        const r=VIEW==='login'?await sb.auth.signInWithPassword({email,password}):await sb.auth.signUp({email,password});
+        let meta=null;
+        if(SU){
+          if(!$('tos').checked){say(m,'Debes aceptar los términos y condiciones para registrarte.','err');return;}
+          const tel=$('tel').value.replace(/[^\d+]/g,'');
+          if(tel.replace(/\D/g,'').length<10){say(m,'Escribe tu teléfono completo, con código de país.','err');return;}
+          meta={nombre:$('fn').value.trim(),apellido:$('ln').value.trim(),usuario:$('un').value.trim().toLowerCase(),ubicacion:$('loc').value.trim(),telefono:tel,terminos_aceptados:new Date().toISOString(),terminos_version:'2026-09-28'};
+        }
+        sub.disabled=true; say(m,'Un momento…');
+        const r=SU?await sb.auth.signUp({email,password,options:{data:meta}}):await sb.auth.signInWithPassword({email,password});
         sub.disabled=false;
         if(r.error){ const t=r.error.message||'';
-          say(m, /Invalid login/i.test(t)?'Correo o contraseña incorrectos.':/already registered|already exists/i.test(t)?'Ese correo ya tiene cuenta. Inicia sesión.':/Password should/i.test(t)?'La contraseña debe tener al menos 6 caracteres.':'No se pudo: '+esc(t),'err'); return; }
-        if(!r.data.session){ say(m,'Cuenta creada. Revisa tu correo para confirmarla y luego inicia sesión.','ok'); return; }
+          say(m, /Invalid login/i.test(t)?'Correo o contraseña incorrectos.':/already registered|already exists/i.test(t)?'Ese correo ya tiene cuenta. Inicia sesión.':/Password should/i.test(t)?'La contraseña es muy corta.':'No se pudo: '+esc(t),'err'); return; }
+        if(!r.data.session){ say(m,'Cuenta creada. Revisa tu correo para confirmarla y luego inicia sesión para elegir tu plan.','ok'); return; }
       };
       return;
     }
