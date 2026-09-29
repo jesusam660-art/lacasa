@@ -803,7 +803,7 @@ function row(x){
 }
 function buildSport(s){
   const sec=$('sec-'+s.tab), list=G.filter(x=>x.sport===s.k);
-  const head=`<div class="h-sec"><div><div class="kick">${list.length} partido${list.length===1?'':'s'}</div><h2>${s.name}</h2></div>`;
+  const head=sportSeal(s)+`<div class="h-sec"><div><div class="kick">${list.length} partido${list.length===1?'':'s'}</div><h2>${s.name}</h2></div>`;
   if(!list.length){
     const msg=s.k==='tenis'?'Hoy no hay partidos del circuito ATP o WTA.':s.k==='mlb'?'Hoy no hay juegos de MLB ni de la LVBP.':s.k==='nba'?'Hoy no hay juegos. La NBA empieza el <b>martes 20 de octubre</b>; la liga venezolana aparece aquí cuando esté en temporada.':s.k==='nfl'?'Hoy no hay partidos de NFL. La NFL juega sobre todo <b>jueves, domingos y lunes</b>.':'Hoy no hay partidos.';
     sec.innerHTML=head+`</div><p class="info cut">${msg}</p>`; return;
@@ -870,13 +870,18 @@ function gauge(real,exp){
   const R=38,C=2*Math.PI*R, v=real==null?0:real, e=exp||0;
   return `<svg viewBox="0 0 92 92" aria-hidden="true"><circle cx="46" cy="46" r="${R}" fill="none" stroke="#211B37" stroke-width="9"/><circle cx="46" cy="46" r="${R}" fill="none" stroke="#856CFF" stroke-width="9" stroke-dasharray="${(v*C).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 46 46)"/>${exp!=null?`<line x1="46" y1="2" x2="46" y2="16" stroke="#F2EFFF" stroke-width="2.5" transform="rotate(${(e*360).toFixed(1)} 46 46)"/>`:''}</svg>`;
 }
+let SIDE_SPORT=null;
+function sportStats(k){const d=H.filter(e=>(e.result===1||e.result===0)&&(!k||e.sport===k)); const ok=d.filter(e=>e.result===1).length; return {d,ok,n:d.length};}
+function sportSeal(s){const st=sportStats(s.k); if(st.n<3) return ''; return `<a class="seal cut" href="#hist" onclick="show('hist');return false;"><span class="ck">✓</span><b class="num">${pct0(st.ok/st.n)}</b> de aciertos en ${s.name.toLowerCase()} (${st.ok}/${st.n}) · <u>ver historial</u></a>`;}
 function buildSide(){
-  const done=H.filter(e=>e.result===1||e.result===0);
+  const SP=SIDE_SPORT?SPORTS.find(s=>s.k===SIDE_SPORT):null;
+  const done=H.filter(e=>(e.result===1||e.result===0)&&(!SP||e.sport===SP.k));
   const hits=done.filter(e=>e.result===1).length;
   const real=done.length?hits/done.length:null, exp=done.length?done.reduce((s,e)=>s+e.p,0)/done.length:null;
-  const cDone=CH.filter(c=>c.result===1||c.result===0);
-  let h=`<div class="card cut"><h3>Rendimiento</h3><div class="gauge">${gauge(real,exp)}<div><div class="gv num">${real==null?'—':pct0(real)}</div><div class="gl">pronósticos acertados (${hits}/${done.length})</div><div class="gl">La marca blanca es lo que esperaba el modelo: ${exp==null?'—':pct0(exp)}</div></div></div>
-    <div class="mini"><div class="row"><span>Combinadas acertadas</span><b class="num">${cDone.filter(c=>c.result===1).length}/${cDone.length}</b></div></div></div>`;
+  const cDone=CH.filter(c=>(c.result===1||c.result===0)&&(!SP||c.sport===SP.k));
+  const gen=sportStats(null);
+  let h=`<div class="card cut"><h3>Rendimiento${SP?' · '+SP.name:''}</h3><div class="gauge">${gauge(real,exp)}<div><div class="gv num">${real==null?'—':pct0(real)}</div><div class="gl">pronósticos acertados (${hits}/${done.length})</div><div class="gl">La marca blanca es lo que esperaba el modelo: ${exp==null?'—':pct0(exp)}</div></div></div>
+    <div class="mini"><div class="row"><span>Combinadas acertadas${SP?' en '+SP.name.toLowerCase():''}</span><b class="num">${cDone.filter(c=>c.result===1).length}/${cDone.length}</b></div>${SP&&gen.n?`<div class="row"><span>General (todos los deportes)</span><b class="num">${pct0(gen.ok/gen.n)} · ${gen.ok}/${gen.n}</b></div>`:''}</div></div>`;
   const today=[]; SPORTS.forEach(s=>CT.forEach(ct=>{const c=((DATA.combos||{})[s.k]||{})[ct.k]; if(c) today.push({s,ct,c,hc:histCombo(s.k,ct.k,DATA.date)});}));
   if(today.length) h+=`<div class="card cut"><h3>Combinadas de hoy</h3><div class="mini">${today.map(t=>`<div class="row"><span>${t.s.name} · ${cname(t.ct.k,t.c.p)} <span class="num" style="color:var(--muted)">${pct(t.c.p)}</span></span><b class="${resCls(t.hc?t.hc.result:null)}">${resTxt(t.hc?t.hc.result:null).toUpperCase()}</b></div>`).join('')}</div></div>`;
   h+=`<div class="brandcard cut"><svg viewBox="0 0 599 634" aria-hidden="true"><path d="M0 255L257 0L599 338V634H397V356L203 549V634H0Z" fill="#856CFF"/></svg><p><b style="color:var(--ink);letter-spacing:.08em">ESTADÍSTICA PURA, SIN HUMO.</b><br>Pronósticos hechos solo con estadísticas, noticias y contexto. Nunca con cuotas de casas de apuestas.</p></div>`;
@@ -945,6 +950,7 @@ const TABS=['combo','fut','mlb','nba','nfl','ten','hist','how','planes'];
 function show(t){
   document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===t)));
   TABS.forEach(k=>$('sec-'+k).hidden=k!==t); store.set('tab',t);
+  const sp=SPORTS.find(x=>x.tab===t); const nk=sp?sp.k:null; if(nk!==SIDE_SPORT){SIDE_SPORT=nk; buildSide();}
 }
 function renderAll(){
   {const t=(DATA.generated||'').match(/(\d{1,2}:\d{2}\s*[AP]M)/i), d=(DATA.date||'').split('-'); $('gen').innerHTML=`<span class="g-long">${esc(DATA.generated||'')}</span><span class="g-short">${d.length===3?d[2]+'/'+d[1]:''}${t?' · '+t[1]:''}</span>`;}
