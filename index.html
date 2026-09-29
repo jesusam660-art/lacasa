@@ -325,6 +325,22 @@ dialog.acct::backdrop{background:rgba(4,3,8,.78);backdrop-filter:blur(4px)}
 .payqr{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 .payqr img{background:#fff;padding:6px;width:160px;height:160px;image-rendering:pixelated}
 .payid .pl{display:block;width:100%;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.tab-plan{background:linear-gradient(120deg,rgba(133,108,255,.35),rgba(133,108,255,.12))!important;color:var(--ink)!important}
+nav.tabs button.tab-plan[aria-selected="true"]{background:var(--v)!important;color:#0B0718!important}
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px}
+.pcard{background:var(--panel);border:1px solid var(--line);padding:20px;display:flex;flex-direction:column;gap:12px}
+.pcard.hot{border-color:rgba(133,108,255,.6);background:linear-gradient(160deg,rgba(133,108,255,.16),var(--panel) 60%)}
+.pcard.mine{border-color:var(--win)}
+.pc-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pc-h h3{margin:0;font-family:var(--display);font-size:18px;letter-spacing:.1em;text-transform:uppercase}
+.pcard .ptag{background:var(--v);color:#0B0718;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px}
+.pcard.mine .ptag{background:var(--win)}
+.pc-p b{font-family:var(--display);font-size:40px;color:var(--v-hi);line-height:1}
+.pc-p span{margin-left:8px;color:var(--muted);font-size:13px}
+.pc-d{margin:0;color:var(--ink-2);font-size:14px}
+.pc-i{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px;flex:1}
+.pc-i li{position:relative;padding-left:22px;font-size:13.5px;color:var(--ink-2)}
+.pc-i li::before{content:"✓";position:absolute;left:0;color:var(--v-hi);font-weight:800}
 .row2{display:flex;gap:8px;flex-wrap:wrap}
 .row2 input{flex:1;min-width:0}
 details.renew{background:var(--panel-2);padding:0}
@@ -453,6 +469,7 @@ details.renew .steps{padding:12px}
     </div>
     <nav class="tabs" role="tablist" aria-label="Secciones">
       <button role="tab" class="cut" data-t="combo">Combinadas</button>
+      <button role="tab" class="cut tab-plan" data-t="planes">Planes</button>
       <button role="tab" class="cut" data-t="fut">Fútbol <span class="ct" id="n-fut"></span></button>
       <button role="tab" class="cut" data-t="mlb">Béisbol <span class="ct" id="n-mlb"></span></button>
       <button role="tab" class="cut" data-t="nba">Baloncesto <span class="ct" id="n-nba"></span></button>
@@ -473,6 +490,7 @@ details.renew .steps{padding:12px}
     <section class="sec" id="sec-nfl" hidden></section>
     <section class="sec" id="sec-ten" hidden></section>
     <section class="sec" id="sec-hist" hidden></section>
+    <section class="sec" id="sec-planes" hidden></section>
     <section class="sec" id="sec-how" hidden>
       <div class="h-sec"><div><div class="kick">El método</div><h2>Cómo funciona</h2></div></div>
       <div class="how">
@@ -896,8 +914,32 @@ function buildHist(){
   $('sec-hist').innerHTML=h;
 }
 
+/* ---------- planes ---------- */
+const PLANS=[{k:'basico',name:'Básico',usd:5,per:'al mes',desc:'1 combinada diaria por deporte: la Segura 1.',
+   inc:['La Segura 1 de cada deporte, todos los días','Todos los deportes: fútbol, béisbol, baloncesto, NFL y tenis','Historial completo de aciertos y fallos','1 pronóstico de muestra gratis al día']},
+  {k:'completo',name:'Completo',usd:15,per:'al mes',desc:'2 combinadas por deporte y el análisis completo de cada partido.',tag:'Más completo',
+   inc:['Las 2 combinadas de cada deporte (Segura 1 y Segura 2)','El pronóstico de cada partido del día','Probabilidades, mercados y marcadores más probables','Noticias, lesiones, alineaciones y análisis de contexto','Historial completo de aciertos y fallos']},
+  {k:'trimestral',name:'Trimestral',usd:20,per:'por 3 meses',desc:'El plan Completo por 90 días.',tag:'Mejor precio',
+   inc:['Todo lo del plan Completo','90 días de acceso','Ahorras 25 USDT frente a 3 meses del Completo']}];
+window.LC_PLAN=null; window.LC_UNTIL=null;
+function buildPlanes(){
+  const cur=window.LC_PLAN, sec=$('sec-planes'); if(!sec) return;
+  const isCur=k=>cur&&(k===cur||(k==='trimestral'&&false));
+  sec.innerHTML=`<div class="h-sec"><div><div class="kick">Suscripción</div><h2>Planes</h2></div><p>Pagas con Binance Pay (USDT) y el plan se activa solo al confirmar el pago. Sin renovación automática.</p></div>
+  ${cur?`<div class="msg ok" style="margin-bottom:16px">Tu plan actual: <b>${cur==='completo'?'Completo':'Básico'}</b>${window.LC_UNTIL?` · activo hasta el <b>${esc(window.LC_UNTIL)}</b>`:''}.</div>`:''}
+  <div class="plan-grid">${PLANS.map(x=>{const mine=cur&&(x.k===cur);return `<article class="pcard cut${x.k==='completo'?' hot':''}${mine?' mine':''}">
+    <div class="pc-h"><h3>${x.name}</h3>${mine?'<span class="ptag">Tu plan</span>':x.tag?`<span class="ptag">${x.tag}</span>`:''}</div>
+    <div class="pc-p"><b class="num">$${x.usd}</b><span>${x.per}</span></div>
+    <p class="pc-d">${x.desc}</p>
+    <ul class="pc-i">${x.inc.map(i=>`<li>${i}</li>`).join('')}</ul>
+    ${PUBLIC?`<button class="btn-v cut" data-plan="${x.k}">${mine?'Renovar':cur==='basico'&&x.k!=='basico'?'Mejorar a este plan':'Elegir este plan'}</button>`:''}
+  </article>`;}).join('')}</div>
+  <p class="note" style="margin-top:16px">Los pronósticos son estimaciones estadísticas, no garantías. Lee los <a href="#" onclick="document.getElementById('termsLink').click();return false;">términos y condiciones</a>.</p>`;
+  sec.querySelectorAll('[data-plan]').forEach(b=>b.onclick=()=>window.choosePlan&&window.choosePlan(b.dataset.plan));
+}
+
 /* ---------- navegación ---------- */
-const TABS=['combo','fut','mlb','nba','nfl','ten','hist','how'];
+const TABS=['combo','fut','mlb','nba','nfl','ten','hist','how','planes'];
 function show(t){
   document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===t)));
   TABS.forEach(k=>$('sec-'+k).hidden=k!==t); store.set('tab',t);
@@ -905,7 +947,7 @@ function show(t){
 function renderAll(){
   {const t=(DATA.generated||'').match(/(\d{1,2}:\d{2}\s*[AP]M)/i), d=(DATA.date||'').split('-'); $('gen').innerHTML=`<span class="g-long">${esc(DATA.generated||'')}</span><span class="g-short">${d.length===3?d[2]+'/'+d[1]:''}${t?' · '+t[1]:''}</span>`;}
   SPORTS.forEach(s=>$('n-'+s.tab).textContent=(DATA[s.k]||[]).length);
-  buildTicker(); SPORTS.forEach(buildSport); buildCombos(); buildSide(); buildHist();
+  buildTicker(); SPORTS.forEach(buildSport); buildCombos(); buildSide(); buildHist(); buildPlanes();
   document.querySelectorAll('[data-open="acct"]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();window.openAccount&&window.openAccount();}));
 }
 setData(DATA);
@@ -922,9 +964,6 @@ if(PUBLIC){
   const SB_URL='https://nmaykdplyylzbihogjdv.supabase.co';
   const SB_KEY='sb_publishable_wwlv6WXHNX-YBTzEknJ7Yw_pShtID0E';
   const PAY_ID='357995576';
-  const PLANS=[{k:'basico',name:'Básico',usd:5,per:'al mes',desc:'1 combinada diaria por deporte: la Segura 1.'},
-               {k:'completo',name:'Completo',usd:15,per:'al mes',desc:'2 combinadas por deporte y el análisis completo de cada partido.',tag:'Más completo'},
-               {k:'trimestral',name:'Trimestral',usd:20,per:'por 3 meses',desc:'El plan Completo por 90 días.',tag:'Mejor precio'}];
   let SEL='completo', SEL_OPEN=false;
   const plan=()=>!PROF?null:(PROF.completo_until&&new Date(PROF.completo_until)>new Date())?'completo':(PROF.basico_until&&new Date(PROF.basico_until)>new Date())?'basico':null;
   const PUB_DATA=DATA;
@@ -936,7 +975,9 @@ if(PUBLIC){
   const active=()=>PROF&&PROF.paid_until&&new Date(PROF.paid_until)>new Date();
   const say=(el,txt,kind)=>{el.innerHTML=txt?`<div class="msg ${kind||''}">${txt}</div>`:'';};
 
+  window.choosePlan=k=>{SEL=k;SEL_OPEN=true;if(!ME)VIEW='signup';window.openAccount();};
   function paintBtn(){
+    const pl=plan(); window.LC_PLAN=pl; window.LC_UNTIL=pl?fmt(pl==='completo'?PROF.completo_until:PROF.basico_until):null; buildPlanes();
     if(!ME){btn.innerHTML='Entrar';return;}
     btn.innerHTML=active()?`<span class="pro">${plan()==='basico'?'BÁSICO':'PREMIUM'}</span>Mi cuenta`:'Elegir plan';
   }
