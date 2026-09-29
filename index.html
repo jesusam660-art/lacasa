@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#07060C">
 <meta name="description" content="LA CASA: pronósticos diarios de fútbol, béisbol, baloncesto, NFL y tenis con estadísticas, noticias y combinadas por deporte.">
 <title>LA CASA</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-60 -40 626 616'%3E%3Crect x='-60' y='-40' width='626' height='616' rx='90' fill='%2307060C'/%3E%3Cpath d='M0 218L218 0L506 288V536H335V126L173 288V536H0Z' fill='%23856CFF'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-70 -48 739 730'%3E%3Crect x='-70' y='-48' width='739' height='730' rx='110' fill='%2307060C'/%3E%3Cpath d='M0 255L257 0L599 338V634H397V356L203 549V634H0Z' fill='%23856CFF'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Chakra+Petch:wght@400;500;600;700&display=swap">
@@ -461,7 +461,7 @@ details.renew .steps{padding:12px}
   <div class="wrap">
     <div class="brand">
       <a class="logo" href="#combo" aria-label="LA CASA, inicio">
-        <svg viewBox="0 0 506 536" aria-hidden="true"><path d="M0 218L218 0L506 288V536H335V126L173 288V536H0Z" fill="#856CFF"/></svg>
+        <svg viewBox="0 0 599 634" aria-hidden="true"><path d="M0 255L257 0L599 338V634H397V356L203 549V634H0Z" fill="#856CFF"/></svg>
         <span class="wm"><span class="wordmark">LA <b>CASA</b></span><span class="tagline">Estadística pura, sin humo</span></span>
       </a>
       <div class="brand-r">
@@ -523,7 +523,7 @@ details.renew .steps{padding:12px}
     <div class="foot-grid">
       <div class="foot-about">
         <div class="logo">
-          <svg viewBox="0 0 506 536" aria-hidden="true"><path d="M0 218L218 0L506 288V536H335V126L173 288V536H0Z" fill="#856CFF"/></svg>
+          <svg viewBox="0 0 599 634" aria-hidden="true"><path d="M0 255L257 0L599 338V634H397V356L203 549V634H0Z" fill="#856CFF"/></svg>
           <span class="wordmark">LA <b>CASA</b></span>
         </div>
         <p>LA CASA es una pizarra diaria de pronósticos deportivos para fútbol, béisbol (MLB y LVBP), baloncesto (NBA y liga venezolana), NFL y tenis (ATP y WTA). Cada partido trae su probabilidad, la cuota mínima que vale la pena y las noticias que la mueven. Los aciertos y los fallos quedan a la vista en el historial.</p>
@@ -879,7 +879,7 @@ function buildSide(){
     <div class="mini"><div class="row"><span>Combinadas acertadas</span><b class="num">${cDone.filter(c=>c.result===1).length}/${cDone.length}</b></div></div></div>`;
   const today=[]; SPORTS.forEach(s=>CT.forEach(ct=>{const c=((DATA.combos||{})[s.k]||{})[ct.k]; if(c) today.push({s,ct,c,hc:histCombo(s.k,ct.k,DATA.date)});}));
   if(today.length) h+=`<div class="card cut"><h3>Combinadas de hoy</h3><div class="mini">${today.map(t=>`<div class="row"><span>${t.s.name} · ${cname(t.ct.k,t.c.p)} <span class="num" style="color:var(--muted)">${pct(t.c.p)}</span></span><b class="${resCls(t.hc?t.hc.result:null)}">${resTxt(t.hc?t.hc.result:null).toUpperCase()}</b></div>`).join('')}</div></div>`;
-  h+=`<div class="brandcard cut"><svg viewBox="0 0 506 536" aria-hidden="true"><path d="M0 218L218 0L506 288V536H335V126L173 288V536H0Z" fill="#856CFF"/></svg><p><b style="color:var(--ink);letter-spacing:.08em">ESTADÍSTICA PURA, SIN HUMO.</b><br>Pronósticos hechos solo con estadísticas, noticias y contexto. Nunca con cuotas de casas de apuestas.</p></div>`;
+  h+=`<div class="brandcard cut"><svg viewBox="0 0 599 634" aria-hidden="true"><path d="M0 255L257 0L599 338V634H397V356L203 549V634H0Z" fill="#856CFF"/></svg><p><b style="color:var(--ink);letter-spacing:.08em">ESTADÍSTICA PURA, SIN HUMO.</b><br>Pronósticos hechos solo con estadísticas, noticias y contexto. Nunca con cuotas de casas de apuestas.</p></div>`;
   $('side').innerHTML=h;
 }
 
