@@ -325,6 +325,8 @@ dialog.acct::backdrop{background:rgba(4,3,8,.78);backdrop-filter:blur(4px)}
 .payqr{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 .payqr img{background:#fff;padding:6px;width:160px;height:160px;image-rendering:pixelated}
 .payid .pl{display:block;width:100%;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.plan-btn{background:linear-gradient(120deg,rgba(133,108,255,.35),rgba(133,108,255,.12))!important;color:var(--ink)!important;border-color:rgba(133,108,255,.6)!important}
+@media (max-width:560px){.brand{gap:8px}.brand-r{gap:6px;flex:none}.brand-r .upd{display:none}.acct-btn.has-pro .lbl{display:none}.acct-btn{padding:8px 9px!important;font-size:11px!important;letter-spacing:.04em!important}.logo{gap:8px}.logo svg{width:24px!important}.wordmark{font-size:18px!important;letter-spacing:.1em!important}.tagline{font-size:7px!important;letter-spacing:.08em!important}}
 .tab-plan{background:linear-gradient(120deg,rgba(133,108,255,.35),rgba(133,108,255,.12))!important;color:var(--ink)!important}
 nav.tabs button.tab-plan[aria-selected="true"]{background:var(--v)!important;color:#0B0718!important}
 .plan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px}
@@ -464,12 +466,12 @@ details.renew .steps{padding:12px}
       </a>
       <div class="brand-r">
         <div class="upd">Actualizado<strong id="gen"></strong></div>
+        <button class="acct-btn plan-btn cut" id="planBtn" type="button">Planes</button>
         <button class="acct-btn cut" id="acctBtn" hidden>Entrar</button>
       </div>
     </div>
     <nav class="tabs" role="tablist" aria-label="Secciones">
       <button role="tab" class="cut" data-t="combo">Combinadas</button>
-      <button role="tab" class="cut tab-plan" data-t="planes">Planes</button>
       <button role="tab" class="cut" data-t="fut">Fútbol <span class="ct" id="n-fut"></span></button>
       <button role="tab" class="cut" data-t="mlb">Béisbol <span class="ct" id="n-mlb"></span></button>
       <button role="tab" class="cut" data-t="nba">Baloncesto <span class="ct" id="n-nba"></span></button>
@@ -952,6 +954,7 @@ function renderAll(){
 }
 setData(DATA);
 document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>show(b.dataset.t)));
+$('planBtn').addEventListener('click',()=>{show('planes');window.scrollTo({top:0,behavior:'smooth'});});
 renderAll();
 const hs=location.hash.slice(1);
 show(TABS.includes(hs)?hs:(TABS.includes(store.get('tab'))?store.get('tab'):'combo'));
@@ -979,7 +982,8 @@ if(PUBLIC){
   function paintBtn(){
     const pl=plan(); window.LC_PLAN=pl; window.LC_UNTIL=pl?fmt(pl==='completo'?PROF.completo_until:PROF.basico_until):null; buildPlanes();
     if(!ME){btn.innerHTML='Entrar';return;}
-    btn.innerHTML=active()?`<span class="pro">${plan()==='basico'?'BÁSICO':'PREMIUM'}</span>Mi cuenta`:'Elegir plan';
+    btn.classList.toggle('has-pro',!!active());
+    btn.innerHTML=active()?`<span class="pro">${plan()==='basico'?'BÁSICO':'PREMIUM'}</span><span class="lbl">Mi cuenta</span>`:'Mi cuenta';
   }
   window.openAccount=()=>{ render(); try{dlg.showModal();}catch(e){dlg.setAttribute('open','');} };
   btn.addEventListener('click',window.openAccount);
