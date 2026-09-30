@@ -210,6 +210,8 @@ details.m>summary:hover,details.m[open]>summary{background:var(--panel-2)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media (max-width:480px){.grid2{grid-template-columns:1fr}}
 .note{margin:0;color:var(--muted);font-size:13.5px}
+.linkbtn{background:none;border:0;padding:4px 0;color:var(--muted);font:inherit;font-size:13.5px;text-decoration:underline;cursor:pointer;align-self:center}
+.linkbtn:hover{color:var(--ink)}
 .info{margin:0;background:var(--panel);padding:14px 16px;font-size:14px;color:var(--ink-2);border-left:3px solid var(--v)}
 .info b{color:var(--ink)}
 
@@ -976,7 +978,7 @@ if(PUBLIC){
   let SEL='completo', SEL_OPEN=false;
   const plan=()=>!PROF?null:(PROF.completo_until&&new Date(PROF.completo_until)>new Date())?'completo':(PROF.basico_until&&new Date(PROF.basico_until)>new Date())?'basico':null;
   const PUB_DATA=DATA;
-  let sb=null, ME=null, PROF=null, VIEW='login', polling=null, PREM=false;
+  let sb=null, ME=null, PROF=null, VIEW='login', polling=null, PREM=false, RECOVERY=false;
   const dlg=$('acct'), body=$('acctBody'), btn=$('acctBtn');
   document.body.classList.add('pub');
   btn.hidden=false;
@@ -998,6 +1000,40 @@ if(PUBLIC){
 
   function render(){
     if(!sb){body.innerHTML='<div class="msg">Cargando…</div>';return;}
+    if(RECOVERY&&ME){
+      body.innerHTML=`<form id="npForm" class="acct-in" style="padding:0;border:0;background:none;gap:14px">
+        <p class="note" style="margin:0">Escribe tu nueva contraseña.</p>
+        <div class="fld"><label for="np1">Nueva contraseña</label><input id="np1" type="password" minlength="8" autocomplete="new-password" required><small>Mínimo 8 caracteres.</small></div>
+        <div class="fld"><label for="np2">Repite la contraseña</label><input id="np2" type="password" minlength="8" autocomplete="new-password" required></div>
+        <div id="npMsg"></div>
+        <button class="btn-v cut" type="submit">Guardar contraseña</button></form>`;
+      $('npForm').onsubmit=async e=>{
+        e.preventDefault(); const m=$('npMsg'), a=$('np1').value;
+        if(a!==$('np2').value){say(m,'Las dos contraseñas no coinciden.','err');return;}
+        say(m,'Un momento…'); const {error}=await sb.auth.updateUser({password:a});
+        if(error){say(m,/different from the old/i.test(error.message||'')?'La nueva contraseña debe ser distinta a la anterior.':'No se pudo cambiar. Pide un enlace nuevo e intenta otra vez.','err');return;}
+        RECOVERY=false; say(m,'Listo, tu contraseña quedó cambiada.','ok'); setTimeout(render,1500);
+      };
+      return;
+    }
+    if(!ME&&VIEW==='forgot'){
+      body.innerHTML=`<form id="fgForm" class="acct-in" style="padding:0;border:0;background:none;gap:14px">
+        <p class="note" style="margin:0">Escribe el correo de tu cuenta y te enviaremos un enlace para crear una contraseña nueva.</p>
+        <div class="fld"><label for="fgEm">Correo</label><input id="fgEm" type="email" autocomplete="email" required></div>
+        <div id="fgMsg"></div>
+        <button class="btn-v cut" type="submit">Enviar enlace</button>
+        <button type="button" class="linkbtn" id="fgBack">Volver a iniciar sesión</button></form>`;
+      $('fgBack').onclick=()=>{VIEW='login';render();};
+      $('fgForm').onsubmit=async e=>{
+        e.preventDefault(); const m=$('fgMsg'), b=e.target.querySelector('button[type=submit]');
+        b.disabled=true; say(m,'Un momento…');
+        const {error}=await sb.auth.resetPasswordForEmail($('fgEm').value.trim(),{redirectTo:location.origin+location.pathname});
+        b.disabled=false;
+        if(error&&/rate|seconds/i.test(error.message||'')){say(m,'Espera un minuto antes de pedir otro enlace.','err');return;}
+        say(m,'Si ese correo tiene cuenta, te llegará un enlace en unos minutos. Revisa también la carpeta de spam.','ok');
+      };
+      return;
+    }
     if(!ME){
       const SU=VIEW==='signup';
       body.innerHTML=`<div class="seg" role="group"><button data-v="login" aria-pressed="${!SU}">Iniciar sesión</button><button data-v="signup" aria-pressed="${SU}">Crear cuenta</button></div>
@@ -1013,9 +1049,11 @@ if(PUBLIC){
         <label class="chk"><input type="checkbox" id="tos" required><span>Leí y <b style="color:var(--ink)">acepto los términos y condiciones</b>. Entiendo que LA CASA es solo un programa de estadísticas, que no predice el futuro y que soy mayor de 18 años.</span></label>`:''}
         <div id="authMsg"></div>
         <button class="btn-v cut" type="submit">${SU?'Siguiente':'Entrar'}</button>
+        ${SU?'':'<button type="button" class="linkbtn" id="fgGo">¿Olvidaste tu contraseña?</button>'}
       </form>
       ${SU?'':'<p class="note">¿No tienes cuenta? Toca <b style="color:var(--ink)">Crear cuenta</b>. Después del registro eliges tu plan y pagas con Binance.</p>'}`;
       body.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{VIEW=b.dataset.v;render();});
+      if($('fgGo')) $('fgGo').onclick=()=>{VIEW='forgot';render();};
       $('authForm').onsubmit=async e=>{
         e.preventDefault(); const m=$('authMsg'), sub=e.submitter||e.target.querySelector('button[type=submit]');
         const email=$('em').value.trim(), password=$('pw').value;
@@ -1126,9 +1164,11 @@ if(PUBLIC){
   const s=document.createElement('script');
   s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
   s.onload=async()=>{
+    if(/type=recovery/.test(location.hash)) RECOVERY=true;
     sb=window.supabase.createClient(SB_URL,SB_KEY);
     const {data}=await sb.auth.getSession(); await onSession(data.session);
-    sb.auth.onAuthStateChange((ev,session)=>{ if(ev==='SIGNED_IN'||ev==='SIGNED_OUT') setTimeout(()=>onSession(session),0); });
+    sb.auth.onAuthStateChange((ev,session)=>{ if(ev==='PASSWORD_RECOVERY'){RECOVERY=true;setTimeout(()=>{onSession(session);window.openAccount();},0);} else if(ev==='SIGNED_IN'||ev==='SIGNED_OUT') setTimeout(()=>onSession(session),0); });
+    if(RECOVERY&&ME){ history.replaceState(null,'',location.pathname); window.openAccount(); }
     if(dlg.open) render();
   };
   s.onerror=()=>{ btn.textContent='Sin conexión'; };
