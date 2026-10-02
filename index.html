@@ -108,6 +108,10 @@ nav.tabs button[aria-selected="true"] .ct{color:#2b2064}
 .ldr{display:flex;align-items:baseline;justify-content:space-between;gap:8px;font-size:13px;padding:6px 9px;background:var(--panel-2)}
 .ldr span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
 .ldr small{color:var(--muted);margin-left:5px}.ldr b{font-variant-numeric:tabular-nums;color:var(--v-hi)}
+.ldr.po span{color:var(--ink-2)}.ldr.po b{color:var(--muted);font-size:15px}
+.ldr.po.lead span{color:var(--ink);font-weight:600}.ldr.po.lead b{color:var(--ink)}
+.ldr.po.hoy{box-shadow:inset 2px 0 0 var(--v)}.ldr.po.hoy span{color:var(--v-hi)}
+.st-sub em{float:right;font-style:normal;letter-spacing:.04em;text-transform:none;font-size:11px;color:var(--v-hi)}
 .sbar{display:grid;grid-template-columns:86px 1fr 66px;align-items:center;gap:8px;font-size:13px}
 .sbar i{display:block;height:8px;background:var(--panel-3);position:relative}
 .sbar i u{position:absolute;inset:0 auto 0 0;background:var(--v)}
@@ -1102,6 +1106,23 @@ function stTable(heads,rows){ // rows: [{name, cells:[...]}]
 function stChips(key,labels,cur){return `<div class="chips" role="group">${labels.map((l,i)=>`<button type="button" data-stk="${key}" data-sti="${i}" aria-pressed="${i===cur}">${esc(l)}</button>`).join('')}</div>`;}
 function espnGroups(j){const out=[]; const walk=n=>{ if(n.standings&&n.standings.entries&&n.standings.entries.length) out.push({name:n.abbreviation||n.name||'',entries:n.standings.entries}); (n.children||[]).forEach(walk); }; walk(j||{}); return out;}
 const sv=(e,n)=>{const x=(e.stats||[]).find(s=>s.name===n); return x?x.displayValue:'';}, nv=(e,n)=>{const x=(e.stats||[]).find(s=>s.name===n); return x?+x.value||0:0;};
+// series de playoffs de la MLB: quién juega contra quién y cómo va cada serie
+function mlbSeries(j){
+  const out=[];
+  for(const sr of (j&&j.series)||[]){
+    const gs=(sr.games||[]).slice().sort((x,y)=>String(x.gameDate).localeCompare(String(y.gameDate))); if(!gs.length) continue;
+    const g0=gs[0], T={}, nm=t=>t.team.teamName||t.team.name||t.team.abbreviation||'Por definir';
+    for(const g of gs) for(const sd of ['away','home']){const t=g.teams[sd], id=t.team.id; T[id]=T[id]||{name:nm(t),w:0}; if(g.status&&g.status.abstractGameState==='Final'&&t.isWinner) T[id].w++;}
+    const ids=[g0.teams.home.team.id,g0.teams.away.team.id], A=T[ids[0]], B=T[ids[1]]; if(!A||!B) continue;
+    const n=g0.gamesInSeries||gs.length, need=Math.ceil(n/2), done=A.w>=need||B.w>=need, live=gs.some(g=>g.status&&g.status.abstractGameState==='Live');
+    const next=gs.find(g=>g.status&&g.status.abstractGameState==='Preview');
+    const d=String(g0.seriesDescription||'').replace(/^AL\b/,'LA').replace(/^NL\b/,'LN').replace('Wild Card Series','Comodín').replace('Division Series','Divisional').replace('League Championship Series','Campeonato').replace('World Series','Serie Mundial');
+    const L=(String(g0.description||'').match(/'([A-D])'/)||[])[1];
+    const note=done?`Avanza ${(A.w>B.w?A:B).name}`:live?'En juego':next?`Juego ${next.seriesGameNumber||''} · ${new Date(next.gameDate).toLocaleDateString('es-VE',{day:'2-digit',month:'2-digit',timeZone:'America/Caracas'})}`:`Al mejor de ${n}`;
+    out.push({type:(sr.series&&sr.series.gameType)||g0.gameType,label:d+(L?' '+L:''),a:A,b:B,need,done,note,sort:(sr.series&&sr.series.sortNumber)||0});
+  }
+  return out.sort((x,y)=>x.sort-y.sort||x.label.localeCompare(y.label));
+}
 function perfCard(){
   const rows=SPORTS.map(s=>({s,st:sportStats(s.k)})).filter(r=>r.st.n>0);
   if(!rows.length) return '';
@@ -1112,13 +1133,25 @@ async function buildStats(){
   const wait=n=>{el.innerHTML=stCard(n,'<p class="st-note">Cargando…</p>');}, fail=n=>stCard(n,'<p class="st-note">No se pudieron cargar las estadísticas ahora. Se intentará de nuevo al cambiar de pestaña.</p>');
   try{
     if(t==='mlb'){
-      wait('Posiciones · MLB');
-      const [a,b]=await Promise.all([stGet('https://statsapi.mlb.com/api/v1/standings?leagueId=103,104&season='+DATA.date.slice(0,4)+'&standingsTypes=regularSeason'),
-                                     stGet('https://statsapi.mlb.com/api/v1/stats/leaders?leaderCategories=homeRuns,strikeouts,battingAverage,earnedRunAverage&season='+DATA.date.slice(0,4)+'&limit=5')]);
+      wait('Béisbol · MLB');
+      const yr=DATA.date.slice(0,4);
+      const [a,b,po]=await Promise.all([stGet('https://statsapi.mlb.com/api/v1/standings?leagueId=103,104&season='+yr+'&standingsTypes=regularSeason'),
+                                     stGet('https://statsapi.mlb.com/api/v1/stats/leaders?leaderCategories=homeRuns,strikeouts,battingAverage,earnedRunAverage&season='+yr+'&limit=5'),
+                                     stGet('https://statsapi.mlb.com/api/v1/schedule/postseason/series?season='+yr+'&hydrate=team')]);
       if(seq!==stSeq) return; let h='';
-      if(a&&a.records){
+      const SER=mlbSeries(po), hasPO=SER.length>0, view=hasPO?(ST.grp.mlbv||0):1;
+      const vchips=hasPO?stChips('mlbv',['Playoffs','Temporada regular'],view):'';
+      if(view===0){
+        const RN={F:'Comodín',D:'Divisional',L:'Campeonato',W:'Serie Mundial'}, rounds=['F','D','L','W'].filter(r=>SER.some(x=>x.type===r));
+        let ri=ST.grp.mlbr; if(ri==null||ri>=rounds.length){ ri=rounds.findIndex(r=>SER.some(x=>x.type===r&&!x.done)); if(ri<0) ri=rounds.length-1; }
+        const list=SER.filter(x=>x.type===rounds[ri]);
+        h+=stCard('Playoffs · MLB',vchips+stChips('mlbr',rounds.map(r=>RN[r]),ri)+list.map(x=>{
+          const row=(t,o)=>`<div class="ldr po${t.w>o.w||(x.done&&t.w>=x.need)?' lead':''}${playsToday(t.name)?' hoy':''}"><span>${esc(t.name)}</span><b>${t.w}</b></div>`;
+          return `<div class="st-sub">${esc(x.label)}<em>${esc(x.note)}</em></div><div class="mini">${row(x.a,x.b)}${row(x.b,x.a)}</div>`;}).join(''),'MLB');
+        h=h.replace('Los equipos en morado juegan hoy.','El número son los juegos ganados en la serie. En morado, los que juegan hoy.');
+      } else if(a&&a.records){
         const DV={201:'Este',202:'Central',200:'Oeste',204:'Este',205:'Central',203:'Oeste'}, lg=ST.grp.mlb||0, id=lg?104:103;
-        h+=stCard('Posiciones · MLB',stChips('mlb',['Liga Americana','Liga Nacional'],lg)+a.records.filter(r=>r.league&&r.league.id===id).sort((x,y)=>['Este','Central','Oeste'].indexOf(DV[x.division.id])-['Este','Central','Oeste'].indexOf(DV[y.division.id])).map(r=>`<div class="st-sub">${DV[r.division.id]||''}</div>`+stTable(['G','P','JD'],r.teamRecords.map(q=>({name:q.team.name,cells:[q.wins,q.losses,q.gamesBack==='-'?'—':q.gamesBack]})))).join(''),'MLB, temporada regular');
+        h+=stCard('Posiciones · MLB',vchips+stChips('mlb',['Liga Americana','Liga Nacional'],lg)+a.records.filter(r=>r.league&&r.league.id===id).sort((x,y)=>['Este','Central','Oeste'].indexOf(DV[x.division.id])-['Este','Central','Oeste'].indexOf(DV[y.division.id])).map(r=>`<div class="st-sub">${DV[r.division.id]||''}</div>`+stTable(['G','P','JD'],r.teamRecords.map(q=>({name:q.team.name,cells:[q.wins,q.losses,q.gamesBack==='-'?'—':q.gamesBack]})))).join(''),'MLB, temporada regular');
       } else h+=fail('Posiciones · MLB');
       if(b&&b.leagueLeaders){
         const want=[['homeRuns','hitting','Jonrones'],['battingAverage','hitting','Promedio al bate'],['strikeouts','pitching','Ponches'],['earnedRunAverage','pitching','Efectividad']];
