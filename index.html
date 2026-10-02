@@ -111,6 +111,12 @@ details.m>summary:hover,details.m[open]>summary{background:var(--panel-2)}
 .stat-col b{display:block;color:var(--ink);font-size:15px;font-weight:700}
 .stat-col .fin{font-family:var(--display);font-size:11px;letter-spacing:.14em;color:var(--ink-2)}
 .stat-col .on{font-family:var(--display);font-size:9px;letter-spacing:.1em;color:var(--v-hi)}
+.stat-col .live{display:inline-flex;align-items:center;gap:4px;font-family:var(--display);font-size:9px;letter-spacing:.1em;color:var(--loss)}
+.stat-col .live i{width:6px;height:6px;border-radius:50%;background:var(--loss);animation:lvp 1.4s infinite}
+.stat-col .clk{font-size:13px}
+.tk .st.live{color:var(--loss)}
+@keyframes lvp{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.stat-col .live i{animation:none}}
 .stat-col .void{font-family:var(--display);font-size:10px;letter-spacing:.12em;color:var(--loss)}
 .teams{display:flex;flex-direction:column;gap:7px;min-width:0}
 .tm{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center}
@@ -512,8 +518,10 @@ details.renew .steps{padding:12px}
         <article class="cut"><h3>Fútbol</h3><p>Rating Elo de cada equipo, calculado solo con resultados, más ventaja de local. Las bajas restan puntos Elo: una estrella entre 20 y 35, un titular entre 5 y 15. Con eso salen los goles esperados y cada marcador posible.</p></article>
         <article class="cut"><h3>NBA y NFL</h3><p>Diferencial de puntos por partido de cada equipo más ventaja de local (2,3 puntos en NBA, 1,5 en NFL). Al inicio de la temporada se mezcla con la anterior. Las bajas, sobre todo estrellas y quarterbacks, restan puntos al margen esperado.</p></article>
         <article class="cut"><h3>Las combinadas</h3><ul>
-          <li><b>Segura 1</b>: las 3 selecciones más probables del día, hasta 80%. Solo ganador, empate o doble oportunidad; en béisbol, solo ganadores desde 56%.</li>
-          <li><b>Segura 2</b>: las 3 siguientes con los mismos requisitos, siempre con partidos y equipos distintos a la Segura 1.</li></ul></article>
+          <li><b>Seguras (2)</b>: chance total de 55% o más. Cada selección tiene 70% o más.</li>
+          <li><b>Medias (2)</b>: chance total entre 33% y 55%. Pagan más que una segura.</li>
+          <li><b>Arriesgadas (2)</b>: chance total entre 15% y 33%, pero cada selección por separado tiene 48% o más.</li>
+          <li>Dentro de una combinada va una sola selección por partido, y entre combinadas se varían los partidos y los mercados: ganador, goles, goles por equipo, ambos anotan, hándicap, carreras o ponches.</li></ul></article>
         <article class="cut"><h3>Límites</h3><ul>
           <li>El modelo empezó el 27/09/2026; el historial dirá en unas semanas qué tan bien acierta.</li>
           <li>Los totales de carreras de MLB quedan fuera de las combinadas hasta calibrarlos.</li>
@@ -540,7 +548,7 @@ details.renew .steps{padding:12px}
         <ol>
           <li><b>Datos</b><span>Cada mañana se cargan los partidos del día con las estadísticas de cada equipo: Elo en fútbol y tenis, carreras, abridores y bullpen en béisbol, diferencial de puntos en baloncesto y NFL.</span></li>
           <li><b>Noticias y contexto</b><span>Se ajusta por lesiones, descansos, motivación, cansancio y clima. Nunca se usan cuotas de casas de apuestas.</span></li>
-          <li><b>Pronóstico y resultados</b><span>El modelo calcula cada resultado posible y arma dos combinadas seguras por deporte. Los marcadores se cargan cada hora y cada fallo se explica.</span></li>
+          <li><b>Pronóstico y resultados</b><span>El modelo calcula cada resultado posible y arma hasta seis combinadas por deporte: seguras, medias y arriesgadas. Los marcadores se cargan cada hora y cada fallo se explica.</span></li>
         </ol>
       </div>
     </div>
@@ -651,7 +659,7 @@ function jersey(name,abbr,sport,size=22){
 /* ---------- partidos ---------- */
 const SPORTS=[{k:'futbol',tab:'fut',name:'Fútbol',tag:'FUT'},{k:'mlb',tab:'mlb',name:'Béisbol',tag:'BÉIS'},{k:'nba',tab:'nba',name:'Baloncesto',tag:'BASK'},{k:'nfl',tab:'nfl',name:'NFL',tag:'NFL'},{k:'tenis',tab:'ten',name:'Tenis',tag:'TEN'}];
 const COMP=(s,g)=>s.k==='futbol'?g.comp:s.k==='tenis'?`${g.league||'ATP'}${g.comp?' · '+g.comp:''}`:s.k==='mlb'?(g.league==='LVBP'?'LVBP · Liga Venezolana de Béisbol':'MLB'):s.k==='nba'?(g.league==='LVB'?'Superliga de Baloncesto de Venezuela':'NBA'):s.name;
-let G=[], BYID={};
+let G=[], BYID={}; const LIVE={};
 function setData(d){
   DATA=d; DATA.nfl=DATA.nfl||[]; DATA.nba=DATA.nba||[]; DATA.tenis=DATA.tenis||[];
   H=DATA.history||[]; CH=DATA.combo_history||[]; RES={}; H.forEach(e=>RES[e.id]=e);
@@ -672,6 +680,9 @@ function status(x){
   const r=RES[x.id];
   if(r&&r.status==='void') return {k:'void',label:'SUSP.'};
   if(r&&r.score_home!=null) return {k:'fin',label:'FIN',sh:r.score_home,sa:r.score_away};
+  const lv=LIVE[x.id];
+  if(lv&&lv.state==='in') return {k:'live',label:lv.clock||'VIVO',sh:lv.sh,sa:lv.sa};
+  if(lv&&lv.state==='post') return {k:'fin',label:'FIN',sh:lv.sh,sa:lv.sa};
   if(started(x)) return {k:'on',label:'EMPEZÓ'};
   return {k:'pre',label:localTime(x.iso),day:dayLabel(x.iso)};
 }
@@ -686,8 +697,8 @@ function buildTicker(){
     if(d!==lastDay){ h+=`<span class="tk-day">${d===todayCCS?'HOY':d.slice(8,10)+'/'+d.slice(5,7)}</span>`; lastDay=d; }
     const st=status(x), [p,q]=order(x);
     const sc=side=>side==='home'?st.sh:st.sa;
-    const mid=st.k==='fin'?`<span class="sc num">${sc(p)}-${sc(q)}</span>`:`<span class="vs">·</span>`;
-    h+=`<button class="tk cut" data-go="${esc(x.id)}" aria-label="${esc(x[p].name)} contra ${esc(x[q].name)}"><span class="sp">${x.tag}</span><span class="st ${st.k==='fin'?'fin':''}">${st.label}</span>${jersey(x[p].name,x[p].abbr,x.sport,18)}${mid}${jersey(x[q].name,x[q].abbr,x.sport,18)}</button>`;
+    const mid=(st.k==='fin'||st.k==='live')?`<span class="sc num">${sc(p)}-${sc(q)}</span>`:`<span class="vs">·</span>`;
+    h+=`<button class="tk cut" data-go="${esc(x.id)}" aria-label="${esc(x[p].name)} contra ${esc(x[q].name)}"><span class="sp">${x.tag}</span><span class="st ${st.k==='fin'?'fin':st.k==='live'?'live':''}">${esc(st.label)}</span>${jersey(x[p].name,x[p].abbr,x.sport,18)}${mid}${jersey(x[q].name,x[q].abbr,x.sport,18)}</button>`;
   });
   $('ticker').innerHTML=h||'<span class="tk-day">Sin partidos hoy</span>';
   document.querySelectorAll('.tk').forEach(b=>b.addEventListener('click',()=>{
@@ -698,8 +709,8 @@ function buildTicker(){
 
 /* ---------- filas ---------- */
 function teamLine(x,side,prob,fav,st){
-  const t=x[side]; const sc=st.k==='fin'?(side==='home'?st.sh:st.sa):null;
-  const other=st.k==='fin'?(side==='home'?st.sa:st.sh):null;
+  const t=x[side], has=st.k==='fin'||st.k==='live'; const sc=has?(side==='home'?st.sh:st.sa):null;
+  const other=has?(side==='home'?st.sa:st.sh):null;
   const lost=st.k==='fin'&&sc<other;
   return `<div class="tm${fav?' fav':''}${lost?' lost':''}">${jersey(t.name,t.abbr,x.sport)}<span class="nm">${esc(t.name)}</span>${sc!=null?`<span class="score num">${sc}</span>`:prob==null?'':`<span class="rt">${pct0(prob)}</span>`}</div>`;
 }
@@ -707,6 +718,7 @@ function statCol(st){
   if(st.k==='fin') return `<div class="stat-col"><span class="fin">FIN</span></div>`;
   if(st.k==='void') return `<div class="stat-col"><span class="void">SUSP.</span></div>`;
   if(st.k==='on') return `<div class="stat-col"><span class="on">EMPEZÓ</span></div>`;
+  if(st.k==='live') return `<div class="stat-col"><span class="live"><i></i>VIVO</span><b class="num clk">${esc(st.label)}</b></div>`;
   const [hm,ap]=st.label.split(' ');
   return `<div class="stat-col">${st.day?`<span>${st.day}</span>`:''}<b class="num">${hm}</b>${ap||''}</div>`;
 }
@@ -815,14 +827,80 @@ function detail(x){
     <div class="sub">${where}</div>
   </div>`;
 }
-function row(x){
+function row(x,onlySummary){
   const st=status(x), [p,q]=order(x);
   let ph=null,pa=null,pd=null;
   if(!x.g.locked){ const m=x.g.markets[0].items;
     if(x.sport==='futbol'){ph=m[0].p;pd=m[1].p;pa=m[2].p;} else {ph=m[0].p;pa=m[1].p;} }
   const prob={home:ph,away:pa}, best=x.g.locked?-1:Math.max(ph,pa,pd||0);
-  return `<details class="m${x.g.free?' free':''}" id="m-${esc(x.id)}" data-st="${st.k}"><summary>${statCol(st)}<div class="teams">${teamLine(x,p,prob[p],prob[p]===best,st)}${teamLine(x,q,prob[q],prob[q]===best,st)}${pd!=null&&st.k!=='fin'?`<span class="drawline">Empate ${pct0(pd)}</span>`:''}</div>${pickCell(x,st)}</summary>${detail(x)}</details>`;
+  const sum=`${statCol(st)}<div class="teams">${teamLine(x,p,prob[p],prob[p]===best,st)}${teamLine(x,q,prob[q],prob[q]===best,st)}${pd!=null&&st.k!=='fin'&&st.k!=='live'?`<span class="drawline">Empate ${pct0(pd)}</span>`:''}</div>${pickCell(x,st)}`;
+  if(onlySummary) return {html:sum,st:st.k==='live'?'on':st.k};
+  return `<details class="m${x.g.free?' free':''}" id="m-${esc(x.id)}" data-st="${st.k==='live'?'on':st.k}"><summary>${sum}</summary>${detail(x)}</details>`;
 }
+
+/* ---------- marcadores en vivo ----------
+   La página (desde el navegador de quien la visita) consulta cada 45 s los marcadores públicos de la MLB
+   (statsapi.mlb.com) y de ESPN. Es solo para mostrar: la calificación oficial la hace la tarea de resultados. */
+const _n=t=>(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+function nameHit(a,b){a=_n(a);b=_n(b); return !!a&&!!b&&(a===b||a.includes(b)||b.includes(a));}
+const ESPN='https://site.api.espn.com/apis/site/v2/sports/';
+const FUT_SLUG=[[/naciones/i,'uefa.nations'],[/amistoso/i,'fifa.friendly'],[/premier/i,'eng.1'],[/la ?liga/i,'esp.1'],[/bundesliga/i,'ger.1'],[/ligue 1/i,'fra.1'],[/champions/i,'uefa.champions'],[/europa league/i,'uefa.europa'],[/conference/i,'uefa.europa.conf'],[/mls/i,'usa.1'],[/argentin/i,'arg.1'],[/brasil/i,'bra.1'],[/arabia|saud/i,'ksa.1'],[/libertadores/i,'conmebol.libertadores'],[/sudamericana/i,'conmebol.sudamericana'],[/eliminatoria/i,'fifa.worldq.conmebol'],[/futve|venez/i,'ven.1'],[/serie a/i,'ita.1'],[/mundial/i,'fifa.world']];
+function liveTargets(){
+  const now=Date.now();
+  return G.filter(x=>{const r=RES[x.id]; if(r&&(r.score_home!=null||r.status==='void')) return false;
+    const t=new Date(x.iso).getTime(), lv=LIVE[x.id];
+    if(lv&&lv.state==='post') return false;
+    return now>=t-10*60000&&now<=t+6*3600000;});
+}
+async function jget(u){const c=new AbortController(), to=setTimeout(()=>c.abort(),12000); try{const r=await fetch(u,{signal:c.signal,cache:'no-store'}); return r.ok?await r.json():null;}catch(e){return null;}finally{clearTimeout(to);}}
+function setLive(x,o){const p=LIVE[x.id]; if(p&&p.state===o.state&&p.sh===o.sh&&p.sa===o.sa&&p.clock===o.clock) return false; LIVE[x.id]=o; return true;}
+async function liveMLB(list,changed){
+  for(const d of [...new Set(list.map(x=>x.iso.slice(0,10)))]){
+    const j=await jget(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${d}&hydrate=linescore,team`); if(!j) continue;
+    for(const gm of (j.dates||[]).flatMap(q=>q.games||[])){
+      const H=gm.teams.home, A=gm.teams.away, hit=(t,o)=>(t.team.abbreviation&&t.team.abbreviation===o.abbr)||nameHit(t.team.teamName||t.team.name,o.name);
+      const x=list.find(x=>hit(H,x.home)&&hit(A,x.away)); if(!x) continue;
+      const ags=gm.status&&gm.status.abstractGameState, ls=gm.linescore||{};
+      const state=ags==='Final'?'post':ags==='Live'?'in':'pre'; if(state==='pre') continue;
+      const half=/^(top|mid)/i.test(ls.inningState||'')?'▲':/^(bot|end)/i.test(ls.inningState||'')?'▼':'';
+      if(setLive(x,{state,sh:H.score??0,sa:A.score??0,clock:ls.currentInning?half+ls.currentInning:''})) changed.add(x.id);
+    }
+  }
+}
+async function liveESPN(path,list,changed,fut){
+  for(const d of [...new Set(list.map(x=>x.iso.slice(0,10).replace(/-/g,'')))]){
+    const j=await jget(`${ESPN}${path}/scoreboard?dates=${d}&lang=es&region=ve&limit=200`); if(!j) continue;
+    for(const ev of j.events||[]){
+      const c=(ev.competitions||[])[0]; if(!c) continue;
+      const H=(c.competitors||[]).find(t=>t.homeAway==='home'), A=(c.competitors||[]).find(t=>t.homeAway==='away'); if(!H||!A) continue;
+      const nm=(t,o)=>[t.team.displayName,t.team.shortDisplayName,t.team.name,t.team.location].some(v=>nameHit(v,o.name))||(!fut&&t.team.abbreviation===o.abbr);
+      const near=x=>Math.abs(new Date(ev.date)-new Date(x.iso))<=40*60000;
+      const x=list.find(x=>fut?(near(x)&&(nm(H,x.home)||nm(A,x.away))):(nm(H,x.home)&&nm(A,x.away))); if(!x) continue;
+      const stt=(ev.status||c.status||{}), ty=stt.type||{}, state=ty.state==='post'?'post':ty.state==='in'?'in':'pre'; if(state==='pre') continue;
+      let clock=String(ty.shortDetail||stt.displayClock||'').replace(/\s*-\s*/,' ').slice(0,9); if(/^(ht|half)/i.test(clock)) clock='DESC.';
+      if(setLive(x,{state,sh:+H.score||0,sa:+A.score||0,clock})) changed.add(x.id);
+    }
+  }
+}
+let liveBusy=false;
+async function liveTick(){
+  if(liveBusy||document.hidden) return; const T=liveTargets(); if(!T.length) return;
+  liveBusy=true; const changed=new Set();
+  try{
+    const by=k=>T.filter(x=>x.sport===k), jobs=[];
+    const mlb=by('mlb').filter(x=>(x.g.league||'MLB')==='MLB'); if(mlb.length) jobs.push(liveMLB(mlb,changed));
+    const nba=by('nba').filter(x=>(x.g.league||'NBA')==='NBA'); if(nba.length) jobs.push(liveESPN('basketball/nba',nba,changed,false));
+    if(by('nfl').length) jobs.push(liveESPN('football/nfl',by('nfl'),changed,false));
+    const slugs={}; by('futbol').forEach(x=>{const m=FUT_SLUG.find(([re])=>re.test(x.g.comp||'')); if(m) (slugs[m[1]]=slugs[m[1]]||[]).push(x);});
+    Object.entries(slugs).forEach(([sl,l])=>jobs.push(liveESPN('soccer/'+sl,l,changed,true)));
+    await Promise.all(jobs);
+  }catch(e){}
+  liveBusy=false;
+  if(!changed.size) return;
+  changed.forEach(id=>{const x=BYID[id], el=document.getElementById('m-'+id); if(!x||!el) return; const r=row(x,true); el.querySelector('summary').innerHTML=r.html; el.dataset.st=r.st;});
+  buildTicker();
+}
+setInterval(liveTick,45000); document.addEventListener('visibilitychange',()=>{if(!document.hidden) liveTick();});
 function buildSport(s){
   const sec=$('sec-'+s.tab), list=G.filter(x=>x.sport===s.k);
   const head=sportSeal(s)+`<div class="h-sec"><div><div class="kick">${list.length} partido${list.length===1?'':'s'}</div><h2>${s.name}</h2></div>`;
@@ -833,7 +911,7 @@ function buildSport(s){
   const cnt=k=>list.filter(x=>status(x).k===k).length;
   const groups={}; list.forEach(x=>(groups[x.comp]=groups[x.comp]||[]).push(x));
   sec.innerHTML=head+`<div class="filters" role="group" aria-label="Filtrar partidos"><button aria-pressed="true" data-f="all">Todos ${list.length}</button><button aria-pressed="false" data-f="fin">Finalizados ${cnt('fin')}</button><button aria-pressed="false" data-f="pre">Por jugar ${cnt('pre')}</button></div></div>`+
-    Object.entries(groups).map(([c,arr])=>`<div class="board cut enter"><div class="board-h"><span class="ic">${s.tag}</span><h3>${esc(c)}</h3><span>${arr.length} partido${arr.length>1?'s':''}</span></div>${arr.map(row).join('')}</div>`).join('');
+    Object.entries(groups).map(([c,arr])=>`<div class="board cut enter"><div class="board-h"><span class="ic">${s.tag}</span><h3>${esc(c)}</h3><span>${arr.length} partido${arr.length>1?'s':''}</span></div>${arr.map(x=>row(x)).join('')}</div>`).join('');
   sec.querySelectorAll('.filters button').forEach(b=>b.addEventListener('click',()=>{
     sec.querySelectorAll('.filters button').forEach(o=>o.setAttribute('aria-pressed',String(o===b)));
     const f=b.dataset.f;
@@ -843,11 +921,15 @@ function buildSport(s){
 }
 
 /* ---------- combinadas ---------- */
-const CT=[{k:'segura',title:'Segura 1',desc:s=>s==='mlb'?'Las selecciones más sólidas del día: ganador si hay un favorito claro, o carreras.':'Las selecciones más sólidas del día en los partidos más importantes: ganador, goles o doble oportunidad.'},
-          {k:'segura2',title:'Segura 2',desc:s=>'Las siguientes más sólidas, con partidos distintos a la 1.'}];
-const TLBL={segura:'Segura 1',segura2:'Segura 2'};
-// con menos de 55% de probabilidad la combinada se llama "Arriesgada"
-function cname(k,p){const n=k==='segura2'?'2':'1'; return (p!=null&&p<0.55?'Arriesgada ':'Segura ')+n;}
+const CT=[{k:'segura',title:'Segura 1',desc:s=>'Las selecciones más sólidas del día. Chance total de 55% o más.'},
+          {k:'segura2',title:'Segura 2',desc:s=>'Otra combinada sólida, con partidos o mercados distintos a la 1.'},
+          {k:'media',title:'Media 1',desc:s=>'Paga más que una segura. Chance total entre 33% y 55%.'},
+          {k:'media2',title:'Media 2',desc:s=>'Otra de riesgo medio, con selecciones distintas.'},
+          {k:'arriesgada',title:'Arriesgada 1',desc:s=>'Paga bastante más, pero cada selección por separado tiene 48% o más. Chance total entre 15% y 33%.'},
+          {k:'arriesgada2',title:'Arriesgada 2',desc:s=>'Otra arriesgada pero probable, con selecciones distintas.'}];
+const TLBL=Object.fromEntries(CT.map(c=>[c.k,c.title]));
+// las combinadas viejas (antes del 02/10) que no llegaban a 55% se llamaban "Arriesgada"
+function cname(k,p){ if((k==='segura'||k==='segura2')&&p!=null&&p<0.55) return 'Arriesgada '+(k==='segura2'?'2':'1'); return TLBL[k]||k; }
 function resCls(r){return r===1?'ok':r===0?'no':r==='void'?'void':'pend';}
 function resTxt(r){return r===1?'Acertó':r===0?'Falló':r==='void'?'Anulada':'Pendiente';}
 function histCombo(sport,type,date){return CH.find(c=>c.sport===sport&&c.type===type&&c.date===date);}
@@ -862,24 +944,24 @@ function legLi(l,sport,hl){
 }
 function comboCard(sport,ct,c,hc){
   const res=hc?hc.result:null, D=1/c.p;
-  if(c.locked) return `<article class="combo cut enter"><div class="ch"><div><h3>${cname(ct.k,c.p)}</h3><p>${ct.desc(sport)}${c.p<0.55?' Hoy no llega al 55%: tómala como arriesgada.':''}</p></div><span class="badge ${resCls(res)}">${res==null?'Premium':resTxt(res)}</span></div>
+  if(c.locked) return `<article class="combo cut enter"><div class="ch"><div><h3>${cname(ct.k,c.p)}</h3><p>${ct.desc(sport)}</p></div><span class="badge ${resCls(res)}">${res==null?'Premium':resTxt(res)}</span></div>
     <ul class="legs">${Array.from({length:c.n||3},()=>`<li class="pend"><span class="jj">${LOCK}</span><div><div class="gm">Selección oculta</div><div class="sel blur">Equipo · Ganador</div></div><div class="lp"><span class="num">··%</span></div></li>`).join('')}</ul>
     <div class="cfoot"><div><span>Chance de ganar</span><b class="num">${pct(c.p)}</b></div><div><span>Cuota mínima</span><b class="num">${esc(c.fair)}</b></div></div>${paywall('Las selecciones de esta combinada.')}</article>`;
-  return `<article class="combo cut enter"><div class="ch"><div><h3>${cname(ct.k,c.p)}</h3><p>${ct.desc(sport)}${c.p<0.55?' Hoy no llega al 55%: tómala como arriesgada.':''}</p></div><span class="badge ${resCls(res)}">${resTxt(res)}</span></div><ul class="legs">${c.legs.map((l,i)=>legLi(l,sport,hc&&hc.legs[i])).join('')}</ul>
+  return `<article class="combo cut enter"><div class="ch"><div><h3>${cname(ct.k,c.p)}</h3><p>${ct.desc(sport)}</p></div><span class="badge ${resCls(res)}">${resTxt(res)}</span></div><ul class="legs">${c.legs.map((l,i)=>legLi(l,sport,hc&&hc.legs[i])).join('')}</ul>
     <div class="cfoot"><div><span>Chance de ganar</span><b class="num">${pct(c.p)}</b></div><div><span>Cuota mínima</span><b class="num">${esc(c.fair)}</b></div></div>
     <p class="note" style="padding:0 18px 16px">Se gana más o menos 1 de cada ${Math.round(D)} veces. Con 100 apostados, pide que pague al menos ${Math.round(100*D).toLocaleString('es-VE')}.</p></article>`;
 }
 function buildCombos(){
   const _d=H.filter(e=>e.result===1||e.result===0), _ok=_d.filter(e=>e.result===1).length;
   const seal=_d.length>=10?`<a class="seal cut" href="#hist" onclick="show('hist');return false;"><span class="ck">✓</span><b class="num">${pct0(_ok/_d.length)}</b> de aciertos (${_ok}/${_d.length}) · <u>historial público y verificable</u></a>`:'';
-  let h=seal+`<div class="h-sec"><div><div class="kick">Del día</div><h2>Combinadas</h2></div><p>Dos combinadas por deporte con partidos distintos. Se llama <b>Segura</b> si tiene 55% o más de chance y <b>Arriesgada</b> si tiene menos.</p></div>`;
+  let h=seal+`<div class="h-sec"><div><div class="kick">Del día</div><h2>Combinadas</h2></div><p>Hasta seis combinadas por deporte: dos <b>Seguras</b> (55% o más de chance), dos <b>Medias</b> (33% a 55%) y dos <b>Arriesgadas</b> (15% a 33%).</p></div>`;
   SPORTS.forEach(s=>{
     const cs=(DATA.combos||{})[s.k]||{}, games=(DATA[s.k]||[]).length;
     let body;
-    if(!games) body=`<p class="info cut">${s.k==='nba'?'La NBA empieza el martes 20 de octubre; desde ese día aparecen aquí sus dos seguras.':s.k==='nfl'?'Hoy no hay partidos de NFL. La NFL juega sobre todo jueves, domingos y lunes.':'Hoy no hay partidos.'}</p>`;
-    else if(!cs.segura&&!cs.segura2) body=`<p class="info cut">Hoy no hay selecciones suficientes para armar combinadas seguras.</p>`;
+    if(!games) body=`<p class="info cut">${s.k==='nba'?'La NBA empieza el martes 20 de octubre; desde ese día aparecen aquí sus combinadas.':s.k==='nfl'?'Hoy no hay partidos de NFL. La NFL juega sobre todo jueves, domingos y lunes.':'Hoy no hay partidos.'}</p>`;
+    else if(!CT.some(ct=>cs[ct.k])) body=`<p class="info cut">Hoy no hay partidos suficientes para armar combinadas (hacen falta al menos 2 partidos).</p>`;
     else body=`<div class="combos">${CT.map(ct=>{const c=cs[ct.k];
-      if(!c) return `<article class="combo cut"><div class="ch"><div><h3>${ct.title}</h3></div></div><p class="empty">${ct.k==='segura2'&&DATA.date<='2026-09-27'?'La Segura 2 empieza con los partidos del 28/09/2026.':'Hoy no hay suficientes partidos distintos para armarla sin repetir los de la Segura 1.'}</p></article>`;
+      if(!c) return '';
       return comboCard(s.k,ct,c,histCombo(s.k,ct.k,DATA.date));}).join('')}</div>`;
     h+=`<div class="sec" style="gap:10px"><div class="sporthd"><h3>${s.name}</h3><span>${games} partido${games===1?'':'s'}</span></div>${body}</div>`;
   });
@@ -946,8 +1028,8 @@ function buildHist(){
 /* ---------- planes ---------- */
 const PLANS=[{k:'basico',name:'Básico',usd:5,per:'al mes',desc:'1 combinada diaria por deporte: la Segura 1.',
    inc:['La Segura 1 de cada deporte, todos los días','Todos los deportes: fútbol, béisbol, baloncesto, NFL y tenis','Historial completo de aciertos y fallos','1 pronóstico de muestra gratis al día']},
-  {k:'completo',name:'Completo',usd:15,per:'al mes',desc:'2 combinadas por deporte y el análisis completo de cada partido.',tag:'Más completo',
-   inc:['Las 2 combinadas de cada deporte (Segura 1 y Segura 2)','El pronóstico de cada partido del día','Probabilidades, mercados y marcadores más probables','Noticias, lesiones, alineaciones y análisis de contexto','Historial completo de aciertos y fallos']},
+  {k:'completo',name:'Completo',usd:15,per:'al mes',desc:'Las 6 combinadas por deporte y el análisis completo de cada partido.',tag:'Más completo',
+   inc:['Las 6 combinadas de cada deporte: 2 Seguras, 2 Medias y 2 Arriesgadas','Jugadores: probabilidad de gol, ponches y jonrones','El pronóstico de cada partido del día','Probabilidades, mercados y marcadores más probables','Noticias, lesiones, alineaciones y análisis de contexto','Historial completo de aciertos y fallos']},
   {k:'trimestral',name:'Trimestral',usd:20,per:'por 3 meses',desc:'El plan Completo por 90 días.',tag:'Mejor precio',
    inc:['Todo lo del plan Completo','90 días de acceso','Ahorras 25 USDT frente a 3 meses del Completo']}];
 window.LC_PLAN=null; window.LC_UNTIL=null;
@@ -977,7 +1059,7 @@ function show(t){
 function renderAll(){
   {const t=(DATA.generated||'').match(/(\d{1,2}:\d{2}\s*[AP]M)/i), d=(DATA.date||'').split('-'); $('gen').innerHTML=`<span class="g-long">${esc(DATA.generated||'')}</span><span class="g-short">${d.length===3?d[2]+'/'+d[1]:''}${t?' · '+t[1]:''}</span>`;}
   SPORTS.forEach(s=>$('n-'+s.tab).textContent=(DATA[s.k]||[]).length);
-  buildTicker(); SPORTS.forEach(buildSport); buildCombos(); buildSide(); buildHist(); buildPlanes();
+  buildTicker(); SPORTS.forEach(buildSport); buildCombos(); buildSide(); buildHist(); buildPlanes(); setTimeout(liveTick,800);
   document.querySelectorAll('[data-open="acct"]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();window.openAccount&&window.openAccount();}));
 }
 setData(DATA);
