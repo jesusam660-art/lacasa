@@ -779,13 +779,17 @@ function paywall(msg){
 }
 function pickCell(x,st){
   const r=RES[x.id];
+  // doble oportunidad: arriba dice "Doble oportunidad" y en el recuadro va solo el equipo
+  const split=p=>{const m=/^(.*) o empate$/.exec(p||''); return m?{dc:true,name:m[1]}:{dc:false,name:p||''};};
+  const lab=(base,dc,done)=>dc?(done?base+' · doble op.':'Doble oportunidad'):base;
   if(x.g.locked){
     const done=st.k==='fin'&&r&&(r.result===1||r.result===0);
-    if(done) return `<div class="pick"><small>${r.result===1?'Acertó':'Falló'}</small><b class="${r.result===1?'ok':'no'}">${esc(r.pick)}</b><em>${pct(r.p)}</em></div>`;
+    if(done){const q=split(r.pick); return `<div class="pick"><small>${lab(r.result===1?'Acertó':'Falló',q.dc,true)}</small><b class="${r.result===1?'ok':'no'}" title="${esc(r.pick)}">${esc(q.name)}</b><em>${pct(r.p)}</em></div>`;}
     return `<div class="pick"><small>Pronóstico</small><b class="lockb">${LOCK}Premium</b><em>Suscriptores</em></div>`;
   } const done=st.k==='fin'&&r&&(r.result===1||r.result===0);
-  const cls=done?(r.result===1?'ok':'no'):'';
-  return `<div class="pick"><small>${done?(r.result===1?'Acertó':'Falló'):x.g.free?'Muestra gratis':x.g.parejo?'Partido parejo':'Pronóstico'}</small><b class="${cls}">${esc(x.g.pick)}</b><em>${pct(x.g.pick_p)}</em></div>`;
+  const cls=done?(r.result===1?'ok':'no'):'', q=split(x.g.pick);
+  const base=done?(r.result===1?'Acertó':'Falló'):x.g.free?'Muestra gratis':x.g.parejo&&!q.dc?'Partido parejo':'Pronóstico';
+  return `<div class="pick"><small>${lab(base,q.dc,done)}</small><b class="${cls}" title="${esc(x.g.pick)}">${esc(q.name)}</b><em>${pct(x.g.pick_p)}${q.dc?' · o empate':''}</em></div>`;
 }
 function probBar(x){
   const m=x.g.markets[0].items;
