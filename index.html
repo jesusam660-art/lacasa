@@ -175,6 +175,21 @@ details.m>summary:hover,details.m[open]>summary{background:var(--panel-2)}
 .pbar .bar i.hi{background:linear-gradient(90deg,var(--v-deep),var(--v));box-shadow:0 0 12px var(--v-glow)}
 .pbar .lbl{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
 .pbar .lbl b{color:var(--ink);font-variant-numeric:tabular-nums}
+.lvbox h4 small{font-family:var(--body,inherit);letter-spacing:.04em;text-transform:none;color:var(--v-hi);font-weight:600;margin-left:6px}
+.lvdom{height:10px;background:var(--panel-3);position:relative;overflow:hidden}
+.lvdom i{position:absolute;inset:0 auto 0 0;background:var(--v);transition:width .6s}
+.lvn{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-2);margin:4px 0 8px}
+.lvr{display:grid;grid-template-columns:54px 1fr 54px;align-items:center;font-size:13.5px;padding:5px 0;border-top:1px solid var(--line)}
+.lvr span{text-align:center;color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.lvr b:last-child{text-align:right}
+.lvg{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12.5px;color:var(--ink-2);padding-top:8px;border-top:1px solid var(--line)}
+@media (prefers-reduced-motion:reduce){.lvdom i{transition:none}}
+.nota h4 small{font-family:var(--body,inherit);letter-spacing:.04em;text-transform:none;color:var(--muted);font-weight:400;margin-left:6px}
+.nrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(80px,2fr) 38px;align-items:center;gap:10px;font-size:14px;padding:4px 0}
+.nrow span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+.nrow i{display:block;height:8px;background:var(--panel-3);position:relative}
+.nrow i u{position:absolute;inset:0 auto 0 0;background:var(--v)}
+.nrow b{text-align:right;font-size:15px}
 .props-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px}
 .props-grid h5{margin:0 0 6px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .props{list-style:none;margin:0;padding:0;display:grid;gap:4px}
@@ -582,6 +597,7 @@ details.renew .steps{padding:12px}
         <ol>
           <li><b>Datos</b><span>Cada mañana se cargan los partidos del día con las estadísticas de cada equipo: Elo en fútbol y tenis, carreras, abridores y bullpen en béisbol, diferencial de puntos en baloncesto y NFL.</span></li>
           <li><b>Noticias y contexto</b><span>Se ajusta por lesiones, descansos, motivación, cansancio y clima. Nunca se usan cuotas de casas de apuestas.</span></li>
+          <li><b>Nota LA CASA</b><span>Cada equipo o jugador recibe una nota de 1 a 10 según su fuerza real: rating Elo en fútbol y tenis, carreras y racha en béisbol, diferencial de puntos en NBA y NFL.</span></li>
           <li><b>Pronóstico y resultados</b><span>El modelo calcula cada resultado posible y arma hasta seis combinadas por deporte: seguras, medias y arriesgadas. Los marcadores se cargan cada hora y cada fallo se explica.</span></li>
         </ol>
       </div>
@@ -832,9 +848,15 @@ function props(x){
   }
   return '';
 }
+function nota(x){
+  const g=x.g; if(g.nota_home==null||g.nota_away==null) return '';
+  const [p,q]=order(x), v={home:g.nota_home,away:g.nota_away};
+  const r=sd=>`<div class="nrow"><span>${esc(x[sd].name)}</span><i><u style="width:${(v[sd]*10).toFixed(0)}%"></u></i><b class="num">${v[sd].toFixed(1)}</b></div>`;
+  return `<div class="blk nota"><h4>Nota LA CASA <small>de 1 a 10</small></h4>${r(p)}${r(q)}</div>`;
+}
 function detail(x){
   const g=x.g, r=RES[x.id]; let tiles='';
-  if(g.locked) return `<div class="det">${r&&r.review&&r.result===0?`<div class="why"><b>Por qué falló:</b> ${esc(r.review)}</div>`:''}${x.sport==='futbol'?lineup(x):''}${paywall()}</div>`;
+  if(g.locked) return `<div class="det">${r&&r.review&&r.result===0?`<div class="why"><b>Por qué falló:</b> ${esc(r.review)}</div>`:''}<div id="lv-${esc(x.id)}">${liveBox(x)}</div>${nota(x)}${x.sport==='futbol'?lineup(x):''}${paywall()}</div>`;
   if(x.sport==='futbol'){
     const adj=v=>v?` (${v>0?'+':''}${v})`:'';
     tiles=`<div class="tile"><span>Goles esperados</span><b class="num">${g.xg_home.toFixed(2)} – ${g.xg_away.toFixed(2)}</b></div><div class="tile"><span>Elo ${esc(g.home)}</span><b class="num">${g.elo_home}${adj(g.adj_home)}</b></div><div class="tile"><span>Elo ${esc(g.away)}</span><b class="num">${g.elo_away}${adj(g.adj_away)}</b></div>`;
@@ -849,8 +871,10 @@ function detail(x){
   const where=x.sport==='tenis'?`${esc(g.home.name)} vs ${esc(g.away.name)} · ${esc(g.time)} (hora de Venezuela)`:x.sport==='futbol'?`${esc(g.when)}${g.neutral?' · campo neutral':''}`:`${esc(g.away.name)} @ ${esc(g.home.name)} · ${esc(g.time)} (hora de Venezuela)`;
   return `<div class="det">
     ${r&&r.review&&r.result===0?`<div class="why"><b>Por qué falló:</b> ${esc(r.review)}</div>`:''}
+    <div id="lv-${esc(x.id)}">${liveBox(x)}</div>
     ${probBar(x)}
     <div class="tiles">${tiles}</div>
+    ${nota(x)}
     ${x.sport==='futbol'?lineup(x):''}
     ${blk('Noticias',notes(g.news,'team','effect'))}
     ${blk('Fuera de los números',notes(g.analysis,'factor','impact'))}
@@ -887,7 +911,23 @@ function liveTargets(){
     return now>=t-10*60000&&now<=t+6*3600000;});
 }
 async function jget(u){const c=new AbortController(), to=setTimeout(()=>c.abort(),12000); try{const r=await fetch(u,{signal:c.signal,cache:'no-store'}); return r.ok?await r.json():null;}catch(e){return null;}finally{clearTimeout(to);}}
-function setLive(x,o){const p=LIVE[x.id]; if(p&&p.state===o.state&&p.sh===o.sh&&p.sa===o.sa&&p.clock===o.clock) return false; LIVE[x.id]=o; return true;}
+function setLive(x,o){const p=LIVE[x.id]; o.sig=JSON.stringify([o.stats||0,o.goals||0]); if(p&&p.state===o.state&&p.sh===o.sh&&p.sa===o.sa&&p.clock===o.clock&&p.sig===o.sig) return false; LIVE[x.id]=o; return true;}
+// estadísticas del partido en vivo (ESPN): posesión, tiros, tiros al arco, córners y faltas
+function espnStats(t){const o={}; (t.statistics||[]).forEach(q=>{o[q.name]=parseFloat(q.displayValue)||0;}); return {pos:o.possessionPct||0,sh:o.totalShots||0,sot:o.shotsOnTarget||0,cor:o.wonCorners||0,fou:o.foulsCommitted||0};}
+function liveBox(x){
+  const lv=LIVE[x.id]; if(!lv||!lv.stats) return '';
+  const h=lv.stats.home, a=lv.stats.away; if(!(h.pos+a.pos+h.sh+a.sh)) return '';
+  const share=(u,v)=>u+v>0?u/(u+v):0.5;
+  const dom=0.35*share(h.pos,a.pos)+0.30*share(h.sh,a.sh)+0.25*share(h.sot,a.sot)+0.10*share(h.cor,a.cor), dp=Math.round(dom*100);
+  const row=(n,u,v,suf)=>`<div class="lvr"><b class="num">${u}${suf||''}</b><span>${n}</span><b class="num">${v}${suf||''}</b></div>`;
+  const who=Math.abs(dp-50)<6?'Partido parejo':`Domina ${esc(dp>50?x.home.name:x.away.name)}`;
+  const goals=(lv.goals||[]).length?`<div class="lvg">${lv.goals.map(g=>`<span>⚽ ${esc(g)}</span>`).join('')}</div>`:'';
+  return `<div class="blk lvbox"><h4>${lv.state==='in'?'En vivo':'Estadísticas del partido'} <small>${who}</small></h4>
+    <div class="lvdom" role="img" aria-label="Dominio: ${esc(x.home.name)} ${dp}%, ${esc(x.away.name)} ${100-dp}%"><i style="width:${dp}%"></i></div>
+    <div class="lvn"><span>${esc(x.home.name)} <b class="num">${dp}%</b></span><span><b class="num">${100-dp}%</b> ${esc(x.away.name)}</span></div>
+    ${row('Posesión',Math.round(h.pos),Math.round(a.pos),'%')}${row('Tiros',h.sh,a.sh)}${row('Tiros al arco',h.sot,a.sot)}${row('Córners',h.cor,a.cor)}${row('Faltas',h.fou,a.fou)}${goals}
+    <p class="st-note">Dominio: mezcla de posesión, tiros, tiros al arco y córners. Datos: ESPN.</p></div>`;
+}
 async function liveMLB(list,changed){
   for(const d of [...new Set(list.map(x=>x.iso.slice(0,10)))]){
     const j=await jget(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${d}&hydrate=linescore,team`); if(!j) continue;
@@ -912,7 +952,10 @@ async function liveESPN(path,list,changed,fut){
       const x=list.find(x=>fut?(near(x)&&(nm(H,x.home)||nm(A,x.away))):(nm(H,x.home)&&nm(A,x.away))); if(!x) continue;
       const stt=(ev.status||c.status||{}), ty=stt.type||{}, state=ty.state==='post'?'post':ty.state==='in'?'in':'pre'; if(state==='pre') continue;
       let clock=String(ty.shortDetail||stt.displayClock||'').replace(/\s*-\s*/,' ').slice(0,9); if(/^(ht|half)/i.test(clock)) clock='DESC.';
-      if(setLive(x,{state,sh:+H.score||0,sa:+A.score||0,clock})) changed.add(x.id);
+      const o={state,sh:+H.score||0,sa:+A.score||0,clock};
+      if(fut){ o.stats={home:espnStats(H),away:espnStats(A)};
+        try{ o.goals=(c.details||[]).filter(d=>d.scoringPlay).map(d=>`${(d.clock&&d.clock.displayValue)||''} ${((d.athletesInvolved||[])[0]||{}).displayName||''}`.trim()).filter(Boolean); }catch(e){} }
+      if(setLive(x,o)) changed.add(x.id);
     }
   }
 }
@@ -931,7 +974,7 @@ async function liveTick(){
   }catch(e){}
   liveBusy=false;
   if(!changed.size) return;
-  changed.forEach(id=>{const x=BYID[id], el=document.getElementById('m-'+id); if(!x||!el) return; const r=row(x,true); el.querySelector('summary').innerHTML=r.html; el.dataset.st=r.st;});
+  changed.forEach(id=>{const x=BYID[id], el=document.getElementById('m-'+id); if(!x||!el) return; const r=row(x,true); el.querySelector('summary').innerHTML=r.html; el.dataset.st=r.st; const lb=document.getElementById('lv-'+id); if(lb) lb.innerHTML=liveBox(x);});
   buildTicker();
 }
 setInterval(liveTick,45000); document.addEventListener('visibilitychange',()=>{if(!document.hidden) liveTick();});
