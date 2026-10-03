@@ -311,6 +311,27 @@ details.m>summary:hover,details.m[open]>summary{background:var(--panel-2)}
 .day-box>.day{padding:0 16px 16px}
 @media (max-width:560px){.day-box .dstats{margin-left:0;width:100%}}
 .day{display:flex;flex-direction:column;gap:12px}
+/* acordeón por deporte (combinadas e historial) */
+.sp-box{border:1px solid var(--line);background:var(--panel)}
+.sp-box>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:13px 16px}
+.sp-box>summary::-webkit-details-marker{display:none}
+.sp-box>summary:hover,.sp-box[open]>summary{background:var(--panel-2)}
+.sp-box>summary h3{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.14em;text-transform:uppercase;margin:0;color:var(--ink)}
+.sp-box>summary .cnt{font-size:12.5px;color:var(--muted)}
+.sp-box>summary .dstats{display:flex;align-items:center;gap:8px;margin-left:auto;font-size:13px}
+.sp-box>summary .dstats b.ok{color:var(--win)} .sp-box>summary .dstats b.no{color:var(--loss)} .sp-box>summary .dstats b.pend{color:var(--v-hi)}
+.sp-box>summary .dstats .sub{color:var(--muted)}
+.sp-box>summary .chev{color:var(--muted);transition:transform .2s;font-size:18px;line-height:1}
+.sp-box[open]>summary .chev{transform:rotate(90deg)}
+.sp-box>.sp-in{padding:14px;display:flex;flex-direction:column;gap:12px;background:var(--bg);border-top:1px solid var(--line)}
+.sp-box.off>summary h3{color:var(--ink-2)}
+.day-box .sp-box{background:var(--panel-2)}
+.day-box .sp-box>summary:hover,.day-box .sp-box[open]>summary{background:var(--panel-3)}
+.day-box .sp-box>.sp-in{padding:12px 10px}
+@media (max-width:560px){.sp-box>summary{padding:12px 38px 12px 12px;row-gap:4px}.sp-box>.sp-in{padding:10px 8px}
+  .sp-box>summary,.day-box>summary{position:relative}.day-box>summary{padding-right:38px}
+  .sp-box>summary .chev,.day-box>summary .chev{position:absolute;right:14px;top:13px}
+  .sp-box>summary .dstats{margin-left:0;width:100%}}
 .day-h{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .day-h h3{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.16em}
 .hrows{background:var(--panel)}
@@ -1055,19 +1076,26 @@ function comboCard(sport,ct,c,hc){
     <div class="cfoot"><div><span>Chance de ganar</span><b class="num">${pct(c.p)}</b></div><div><span>Selecciones</span><b class="num">${c.legs.length}</b></div></div>
     <p class="note" style="padding:0 18px 16px">Según el modelo, se gana más o menos 1 de cada ${Math.round(D)} veces.</p></article>`;
 }
+const ACC={};
+function accAttr(k,def){const o=(k in ACC)?ACC[k]:def; return ` data-acc="${k}"${o?' open':''} ontoggle="ACC[this.dataset.acc]=this.open"`;}
+function tally(cs){const ok=cs.filter(c=>c.result===1).length,no=cs.filter(c=>c.result===0).length,pe=cs.filter(c=>c.result!==1&&c.result!==0&&c.result!=='void').length; return {ok,no,pe};}
 function buildCombos(){
   const _d=H.filter(e=>e.result===1||e.result===0), _ok=_d.filter(e=>e.result===1).length;
   const seal=_d.length>=10?`<a class="seal cut" href="#hist" onclick="show('hist');return false;"><span class="ck">✓</span><b class="num">${pct0(_ok/_d.length)}</b> de aciertos (${_ok}/${_d.length}) · <u>historial público y verificable</u></a>`:'';
   let h=seal+`<div class="h-sec"><div><div class="kick">Del día</div><h2>Combinadas</h2></div><p>Hasta seis combinadas por deporte: dos <b>Seguras</b> (55% o más de chance), dos <b>Medias</b> (33% a 55%) y dos <b>Arriesgadas</b> (15% a 33%).</p></div>`;
+  const firstOn=(SPORTS.find(s=>CT.some(ct=>((DATA.combos||{})[s.k]||{})[ct.k]))||{}).k;
   SPORTS.forEach(s=>{
     const cs=(DATA.combos||{})[s.k]||{}, games=(DATA[s.k]||[]).length;
+    const mine=CT.filter(ct=>cs[ct.k]), n=mine.length;
+    const t=tally(mine.map(ct=>histCombo(s.k,ct.k,DATA.date)||{}));
+    const st=n?`<span class="dstats">${t.ok?`<b class="ok">${t.ok} ✓</b>`:''}${t.no?`<b class="no">${t.no} ✗</b>`:''}${t.pe?`<span class="sub">${t.pe} pendiente${t.pe===1?'':'s'}</span>`:''}</span>`:`<span class="dstats"><span class="sub">${(DATA.pending||[]).includes(s.k)?'Por publicar':games?'Sin combinadas hoy':'Sin partidos hoy'}</span></span>`;
     let body;
     if(!games) body=`<p class="info cut">${(DATA.pending||[]).includes(s.k)?`Las combinadas de ${s.name.toLowerCase()} de hoy se publican a las ${s.k==='futbol'||s.k==='tenis'?'6:00 AM':'10:45 AM'} (hora de Venezuela).`:s.k==='nba'?'La NBA empieza el martes 20 de octubre; desde ese día aparecen aquí sus combinadas.':s.k==='nfl'?'Hoy no hay partidos de NFL. La NFL juega sobre todo jueves, domingos y lunes.':'Hoy no hay partidos.'}</p>`;
     else if(!CT.some(ct=>cs[ct.k])) body=`<p class="info cut">Hoy no hay partidos suficientes para armar combinadas (hacen falta al menos 2 partidos).</p>`;
     else body=`<div class="combos">${CT.map(ct=>{const c=cs[ct.k];
       if(!c) return '';
       return comboCard(s.k,ct,c,histCombo(s.k,ct.k,DATA.date));}).join('')}</div>`;
-    h+=`<div class="sec" style="gap:10px"><div class="sporthd"><h3>${s.name}</h3><span>${games} partido${games===1?'':'s'}</span></div>${body}</div>`;
+    h+=`<details class="sp-box${n?'':' off'}"${accAttr('c-'+s.k,s.k===firstOn)}><summary><h3>${s.name}</h3><span class="cnt">${n?`${n} combinada${n===1?'':'s'} · `:''}${games?`${games} partido${games===1?'':'s'}`:''}</span>${st}<span class="chev" aria-hidden="true">›</span></summary><div class="sp-in">${body}</div></details>`;
   });
   h+=`<p class="note"><b style="color:var(--ink)">Chance de ganar:</b> la probabilidad de que acierten todas las selecciones a la vez, según el modelo. Ningún pronóstico es garantía.</p>`;
   $('sec-combo').innerHTML=h;
@@ -1111,18 +1139,21 @@ function buildHist(){
   const dates=[...new Set([...CH.map(c=>c.date),...H.map(e=>e.date)])].sort().reverse();
   h+=dates.map(d=>{
     const cs=CH.filter(c=>c.date===d), rows=H.filter(e=>e.date===d);
-    const combos=cs.length?`<div class="combos">${cs.map(c=>{const sp=SPORTS.find(s=>s.k===c.sport);
-      return `<article class="combo cut"><div class="ch"><div><h3 style="font-size:15px">${sp?sp.name:c.sport} · ${cname(c.type,c.p)}</h3><p class="num">Chance ${pct(c.p)}</p></div><span class="badge ${resCls(c.result)}">${resTxt(c.result)}</span></div><ul class="legs">${c.legs.length?c.legs.map(l=>legLi(l,c.sport,l)).join(''):`<li class="pend"><span class="jj">${LOCK}</span><div><div class="gm">Selecciones visibles para suscriptores hasta que terminen los partidos</div></div><div class="lp"></div></li>`}</ul><div style="height:8px"></div></article>`;}).join('')}</div>`:'';
-    const list=rows.length?`<div class="hrows cut">${rows.map(e=>{const sp=SPORTS.find(s=>s.k===e.sport);
-      return `<div class="hrow"><span class="res ${resCls(e.result)}">${resTxt(e.result).toUpperCase()}</span><div class="g">${esc(e.game)}<small>${sp?sp.name:''} · Pronóstico: ${e.locked?LOCK+'solo suscriptores':esc(e.pick)+' ('+pct(e.p)+')'}</small></div><span class="sc num">${e.score?esc(e.score):'—'}</span>${e.review&&e.result===0?`<div class="rv">${esc(e.review)}</div>`:''}</div>`;}).join('')}</div>`:'';
+    const keys=[...SPORTS.map(s=>s.k),...new Set([...cs.map(c=>c.sport),...rows.map(e=>e.sport)].filter(k=>!SPORTS.some(s=>s.k===k)))].filter(k=>cs.some(c=>c.sport===k)||rows.some(e=>e.sport===k));
+    const inner=keys.map(k=>{
+      const sp=SPORTS.find(s=>s.k===k), cK=cs.filter(c=>c.sport===k), rK=rows.filter(e=>e.sport===k);
+      const combos=cK.length?`<div class="combos">${cK.map(c=>`<article class="combo cut"><div class="ch"><div><h3 style="font-size:15px">${cname(c.type,c.p)}</h3><p class="num">Chance ${pct(c.p)}</p></div><span class="badge ${resCls(c.result)}">${resTxt(c.result)}</span></div><ul class="legs">${c.legs.length?c.legs.map(l=>legLi(l,c.sport,l)).join(''):`<li class="pend"><span class="jj">${LOCK}</span><div><div class="gm">Selecciones visibles para suscriptores hasta que terminen los partidos</div></div><div class="lp"></div></li>`}</ul><div style="height:8px"></div></article>`).join('')}</div>`:'';
+      const list=rK.length?`<div class="hrows cut">${rK.map(e=>`<div class="hrow"><span class="res ${resCls(e.result)}">${resTxt(e.result).toUpperCase()}</span><div class="g">${esc(e.game)}<small>Pronóstico: ${e.locked?LOCK+'solo suscriptores':esc(e.pick)+' ('+pct(e.p)+')'}</small></div><span class="sc num">${e.score?esc(e.score):'—'}</span>${e.review&&e.result===0?`<div class="rv">${esc(e.review)}</div>`:''}</div>`).join('')}</div>`:'';
+      const t=tally(cK), gK=rK.filter(e=>e.result===1||e.result===0);
+      return `<details class="sp-box"${accAttr('h-'+d+'-'+k,keys.length===1)}><summary><h3>${sp?sp.name:esc(k)}</h3><span class="dstats">${cK.length?(t.ok+t.no?`<b class="ok">${t.ok} ✓</b><b class="no">${t.no} ✗</b><span class="sub">combinadas</span>`:`<span class="sub">${cK.length} combinada${cK.length===1?'':'s'}</span>`):''}${cK.length&&rK.length?'<span class="sub">·</span>':''}${rK.length?`<span class="sub">${gK.length?r(gK)+' pronósticos':rK.length+' pronóstico'+(rK.length===1?'':'s')+' pendiente'+(rK.length===1?'':'s')}</span>`:''}</span><span class="chev" aria-hidden="true">›</span></summary><div class="sp-in">${combos}${list}</div></details>`;
+    }).join('');
     const graded=rows.filter(e=>e.result===1||e.result===0), cG=cs.filter(c=>c.result===1||c.result===0);
     const cOk=cs.filter(c=>c.result===1).length, cNo=cs.filter(c=>c.result===0).length;
     const pend=cs.some(c=>c.result!==1&&c.result!==0&&c.result!=='void')||rows.some(e=>e.result!==1&&e.result!==0&&e.result!=='void');
     const isToday=d===(DATA.date||'');
     const tag=isToday?'Hoy · en curso':(pend?'Con partidos pendientes':'Día cerrado');
-    const inner=`${combos}${list}`;
     // Solo el día de hoy queda abierto; los días anteriores se guardan en una pestaña plegable
-    return `<details class="day-box"${isToday?' open':''}><summary class="day-sum"><h3 class="num">${fmtDate(d)}</h3><span class="dtag${isToday?' now':''}">${tag}</span>
+    return `<details class="day-box"${accAttr('d-'+d,isToday)}><summary class="day-sum"><h3 class="num">${fmtDate(d)}</h3><span class="dtag${isToday?' now':''}">${tag}</span>
       <span class="dstats"><b class="ok">${cOk} ✓</b><b class="no">${cNo} ✗</b><span class="sub">combinadas</span><span class="sep">·</span><span class="sub">${r(graded)} pronósticos</span></span><span class="chev" aria-hidden="true">›</span></summary>
       <div class="day">${inner}</div></details>`;
   }).join('');
