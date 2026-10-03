@@ -572,7 +572,6 @@ details.renew .steps{padding:12px}
       <div class="how">
         <article class="cut"><h3>Cada partido</h3><ul>
           <li><b>Pronóstico</b>: el resultado más probable según el modelo, con su probabilidad.</li>
-          <li><b>Cuota mínima</b>: la cuota justa según el modelo. Si la casa de apuestas paga más, la apuesta tiene valor; si paga menos, no.</li>
           <li><b>Noticias</b>: bajas, descansos y cambios que el modelo ya tomó en cuenta, con el ajuste aplicado.</li>
           <li><b>Fuera de los números</b>: motivación, cansancio, estilo, clima o estadio, y cuánto movió cada factor el pronóstico.</li></ul></article>
         <article class="cut"><h3>Béisbol</h3><p>Carreras anotadas y permitidas por juego de cada equipo. El abridor pesa el 59% del juego (unas 5⅓ entradas), medido por FIP: ponches, boletos y jonrones. A los abridores con pocos innings se les acerca al promedio de la liga. Se simulan 200.000 juegos.</p></article>
@@ -603,7 +602,7 @@ details.renew .steps{padding:12px}
           <svg viewBox="0 0 599 634" aria-hidden="true"><path d="M0 255L257 0L599 338V634H397V356L203 549V634H0Z" fill="#856CFF"/></svg>
           <span class="wordmark">LA <b>CASA</b></span>
         </div>
-        <p>LA CASA es una pizarra diaria de pronósticos deportivos para fútbol, béisbol (MLB y LVBP), baloncesto (NBA y liga venezolana), NFL, hockey (NHL) y tenis (ATP y WTA). Cada partido trae su probabilidad, la cuota mínima que vale la pena y las noticias que la mueven. Los aciertos y los fallos quedan a la vista en el historial.</p>
+        <p>LA CASA es una pizarra diaria de pronósticos deportivos para fútbol, béisbol (MLB y LVBP), baloncesto (NBA y liga venezolana), NFL, hockey (NHL) y tenis (ATP y WTA). Cada partido trae su probabilidad y las noticias que la mueven. Los aciertos y los fallos quedan a la vista en el historial.</p>
       </div>
       <div class="foot-steps">
         <h3>Cómo funciona</h3>
@@ -820,7 +819,7 @@ function notes(arr,k1,k2){if(!arr||!arr.length) return '';return `<ul class="not
 function blk(t,inner){return inner?`<div class="blk"><h4>${t}</h4>${inner}</div>`:'';}
 function markets(ms,mlb){
   return `<div class="mkts">${ms.map(g=>{const best=Math.max(...g.items.map(i=>i.p));
-    return `<div class="mkt cut"><h5>${esc(g.group)}${mlb&&g.items[0].kind==='tot_mlb'?' · con cautela':''}</h5><div class="opts">${g.items.map(i=>`<div class="opt ${i.p===best&&g.items.length<=3?'best':''}"><span title="${esc(i.label)}">${esc(i.label)}</span><b class="num">${pct(i.p)}</b><small>Cuota mín. ${esc(i.fair)}</small></div>`).join('')}</div></div>`;}).join('')}</div>`;
+    return `<div class="mkt cut"><h5>${esc(g.group)}${mlb&&g.items[0].kind==='tot_mlb'?' · con cautela':''}</h5><div class="opts">${g.items.map(i=>`<div class="opt ${i.p===best&&g.items.length<=3?'best':''}"><span title="${esc(i.label)}">${esc(i.label)}</span><b class="num">${pct(i.p)}</b></div>`).join('')}</div></div>`;}).join('')}</div>`;
 }
 function spTile(sp,team){
   if(!sp) return `<div class="tile"><span>Abridor ${esc(team)}</span><b>Sin anunciar</b><small>Se usa el pitcheo del equipo</small></div>`;
