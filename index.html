@@ -296,6 +296,8 @@ details.m>summary:hover,details.m[open]>summary{background:var(--panel-2)}
 .kpi span{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
 .kpi b{font-family:var(--display);font-weight:800;font-size:26px;color:var(--ink)}
 .kpi small{font-size:12px;color:var(--muted)}
+.kpis.k3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:560px){.kpis.k3{gap:8px}.kpis.k3 .kpi{padding:12px 10px}.kpis.k3 .kpi span{letter-spacing:.08em}.kpis.k3 .kpi b{font-size:23px}}
 .day-box{background:var(--panel);border:1px solid var(--line)}
 .day-box>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 16px}
 .day-box>summary::-webkit-details-marker{display:none}
@@ -1054,7 +1056,11 @@ const CT=[{k:'segura',title:'Segura 1',desc:s=>'Las selecciones más sólidas de
           {k:'arriesgada2',title:'Arriesgada 2',desc:s=>'Otra arriesgada pero probable, con selecciones distintas.'}];
 const TLBL=Object.fromEntries(CT.map(c=>[c.k,c.title]));
 // las combinadas viejas (antes del 02/10) que no llegaban a 55% se llamaban "Arriesgada"
-function cname(k,p){ if((k==='segura'||k==='segura2')&&p!=null&&p<0.55) return 'Arriesgada '+(k==='segura2'?'2':'1'); return TLBL[k]||k; }
+// Nivel real de una combinada. Las antiguas se llamaban "segura" aunque tuvieran menos chance: se ubican por su probabilidad.
+function ctier(k,p){ k=String(k||''); if(k.indexOf('segura')===0&&p!=null&&p<0.55) return p<0.33?'arriesgada':'media'; return k.indexOf('media')===0?'media':k.indexOf('arriesgada')===0?'arriesgada':'segura'; }
+const TIERS=[['segura','Seguras'],['media','Medias'],['arriesgada','Arriesgadas']];
+function tierStats(cs){ return TIERS.map(([k,name])=>{const a=cs.filter(c=>(c.result===1||c.result===0)&&ctier(c.type,c.p)===k), ok=a.filter(c=>c.result===1).length; return {k,name,n:a.length,ok,real:a.length?ok/a.length:null,exp:a.length?a.reduce((t,c)=>t+c.p,0)/a.length:null};}); }
+function cname(k,p){ const t=ctier(k,p), num=/2$/.test(String(k))?'2':'1'; if(String(k).indexOf(t)!==0) return (t==='media'?'Media ':'Arriesgada ')+num; return TLBL[k]||k; }
 function resCls(r){return r===1?'ok':r===0?'no':r==='void'?'void':'pend';}
 function resTxt(r){return r===1?'Acertó':r===0?'Falló':r==='void'?'Anulada':'Pendiente';}
 function histCombo(sport,type,date){return CH.find(c=>c.sport===sport&&c.type===type&&c.date===date);}
@@ -1117,7 +1123,7 @@ function buildSide(){
   const cDone=CH.filter(c=>(c.result===1||c.result===0)&&(!SP||c.sport===SP.k));
   const gen=sportStats(null);
   let h=`<div class="card cut"><h3>Rendimiento${SP?' · '+SP.name:''}</h3><div class="gauge">${gauge(real,exp)}<div><div class="gv num">${real==null?'—':pct0(real)}</div><div class="gl">pronósticos acertados (${hits}/${done.length})</div><div class="gl">La marca blanca es lo que esperaba el modelo: ${exp==null?'—':pct0(exp)}</div></div></div>
-    <div class="mini"><div class="row"><span>Combinadas acertadas${SP?' en '+SP.name.toLowerCase():''}</span><b class="num">${cDone.filter(c=>c.result===1).length}/${cDone.length}</b></div>${SP&&gen.n?`<div class="row"><span>General (todos los deportes)</span><b class="num">${pct0(gen.ok/gen.n)} · ${gen.ok}/${gen.n}</b></div>`:''}</div></div>`;
+    <div class="mini">${tierStats(cDone).map(t=>`<div class="row"><span>Combinadas ${t.name.toLowerCase()}</span><b class="num">${t.n?`${pct0(t.real)} · ${t.ok}/${t.n}`:'—'}</b></div>`).join('')}${SP&&gen.n?`<div class="row"><span>General (todos los deportes)</span><b class="num">${pct0(gen.ok/gen.n)} · ${gen.ok}/${gen.n}</b></div>`:''}</div></div>`;
   const today=[]; SPORTS.forEach(s=>CT.forEach(ct=>{const c=((DATA.combos||{})[s.k]||{})[ct.k]; if(c) today.push({s,ct,c,hc:histCombo(s.k,ct.k,DATA.date)});}));
   if(today.length) h+=`<div class="card cut"><h3>Combinadas de hoy</h3><div class="mini">${today.map(t=>`<div class="row"><span>${t.s.name} · ${cname(t.ct.k,t.c.p)} <span class="num" style="color:var(--muted)">${pct(t.c.p)}</span></span><b class="${resCls(t.hc?t.hc.result:null)}">${resTxt(t.hc?t.hc.result:null).toUpperCase()}</b></div>`).join('')}</div></div>`;
   h+=`<div class="brandcard cut"><svg viewBox="0 0 599 634" aria-hidden="true"><path d="M0 255L257 0L599 338V634H397V356L203 549V634H0Z" fill="#856CFF"/></svg><p><b style="color:var(--ink);letter-spacing:.08em">ESTADÍSTICA PURA, SIN HUMO.</b><br>Pronósticos hechos solo con estadísticas, noticias y contexto. Nunca con cuotas de casas de apuestas.</p></div>`;
@@ -1132,9 +1138,9 @@ function buildHist(){
   const r=a=>a.length?`${a.filter(x=>x.result===1).length}/${a.length}`:'—';
   const pr=a=>a.length?pct0(a.filter(x=>x.result===1).length/a.length):'—';
   const ex=a=>a.length?pct0(a.reduce((s,x)=>s+x.p,0)/a.length):'—';
-  let h=`<div class="h-sec"><div><div class="kick">Resultados</div><h2>Historial</h2></div><p>Los marcadores se cargan cada hora. "Esperado" es lo que decía el modelo: si el real queda cerca, está bien calibrado.</p></div>
-  <div class="kpis"><div class="kpi cut"><span>Combinadas</span><b class="num">${r(cDone)}</b><small>esperado ${ex(cDone)}</small></div>
-  <div class="kpi cut"><span>Selecciones de combinadas</span><b class="num">${pr(legs)}</b><small>esperado ${ex(legs)}</small></div>
+  let h=`<div class="h-sec"><div><div class="kick">Resultados</div><h2>Historial</h2></div><p>Las combinadas se miden por tipo: las arriesgadas fallan más a propósito, por eso pagan más. "Esperado" es lo que decía el modelo: si el real queda cerca, está bien calibrado.</p></div>
+  <div class="kick" style="margin-bottom:-6px">Combinadas por tipo</div><div class="kpis k3">${tierStats(cDone).map(t=>`<div class="kpi cut"><span>${t.name}</span><b class="num">${t.n?pct0(t.real):'—'}</b><small>${t.n?`${t.ok} de ${t.n}<br>esperado ${pct0(t.exp)}`:'aún sin resultados'}</small></div>`).join('')}</div>
+  <div class="kpis"><div class="kpi cut"><span>Selecciones de combinadas</span><b class="num">${pr(legs)}</b><small>esperado ${ex(legs)}</small></div>
   <div class="kpi cut"><span>Pronósticos del día</span><b class="num">${pr(done)}</b><small>${r(done)} · esperado ${ex(done)}</small></div></div>`;
   const dates=[...new Set([...CH.map(c=>c.date),...H.map(e=>e.date)])].sort().reverse();
   h+=dates.map(d=>{
